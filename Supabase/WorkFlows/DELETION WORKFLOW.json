@@ -1,0 +1,480 @@
+{
+  "name": "DELETION WORKFLOW",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        192,
+        -80
+      ],
+      "id": "b70ec4df-2623-4e5d-9a44-6bbcbca8c13a",
+      "name": "Loop Over Items3"
+    },
+    {
+      "parameters": {
+        "useCustomSchema": true,
+        "operation": "delete",
+        "tableId": "documents",
+        "filterType": "string",
+        "filterString": "=metadata->>file_id=like.*{{$('EXRACT  USEFUL  METADATA').item.json.DOC_ID}}*"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1872,
+        -48
+      ],
+      "id": "e246d8f1-3c04-46ae-b31f-b88617aa121f",
+      "name": "DELETE ALL OLD ROWS FROM VECTOR STORE BY FILE ID 1",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "F11Pn5ORjMbpDP63",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "tableId": "processed_files",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "file_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.doc_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        3040,
+        -48
+      ],
+      "id": "96a43a3e-0722-46cd-8820-29a68cfa5f70",
+      "name": "DELETE FROM PROCESSED FILES ",
+      "credentials": {
+        "supabaseApi": {
+          "id": "F11Pn5ORjMbpDP63",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "deleted_files",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "file_id",
+              "fieldValue": "={{ $('EXRACT  USEFUL  METADATA').item.json.DOC_ID }}"
+            },
+            {
+              "fieldId": "file_title",
+              "fieldValue": "={{ $('EXRACT  USEFUL  METADATA').item.json.DOC_NAME }}"
+            },
+            {
+              "fieldId": "file_type",
+              "fieldValue": "={{ $('EXRACT  USEFUL  METADATA').item.json.DOC_TYPE }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1776,
+        272
+      ],
+      "id": "4755ea1b-1b35-4906-9c6a-f805d98fd8f0",
+      "name": "ADD RECORD TO THE DELTED FILES",
+      "credentials": {
+        "supabaseApi": {
+          "id": "F11Pn5ORjMbpDP63",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "document_records",
+        "returnAll": true,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "doc_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.DOC_ID }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        976,
+        -64
+      ],
+      "id": "4eef48b5-2614-48c0-9f58-05d90daed351",
+      "name": "CHECK FILE EXIST IN RECORD MANAGER TABLE OR NOT ",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "F11Pn5ORjMbpDP63",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "3c50799b-2ad5-4338-8dd3-38bdef9e1098",
+              "leftValue": "={{ $json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1392,
+        -64
+      ],
+      "id": "72e00b4f-ca64-4101-b4c7-8ca423449a89",
+      "name": "NOT EXIST",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "={{ $json.content }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        2176,
+        -48
+      ],
+      "id": "66bab90a-be8a-4e29-8048-fc31356435a7",
+      "name": "AGGREGATE "
+    },
+    {
+      "parameters": {
+        "tableId": "deleted_files",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "file_id",
+              "fieldValue": "={{ $('EXRACT  USEFUL  METADATA').item.json.DOC_ID }}"
+            },
+            {
+              "fieldId": "file_title",
+              "fieldValue": "={{ $('EXRACT  USEFUL  METADATA').item.json.DOC_NAME }}"
+            },
+            {
+              "fieldId": "file_type",
+              "fieldValue": "={{ $('EXRACT  USEFUL  METADATA').item.json.DOC_TYPE }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2512,
+        -48
+      ],
+      "id": "cf2bc451-7594-4214-b6e8-184d067d418b",
+      "name": "ADD RAW TO DELTED FILES TABLE",
+      "credentials": {
+        "supabaseApi": {
+          "id": "F11Pn5ORjMbpDP63",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "tableId": "document_records",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "doc_id",
+              "condition": "eq",
+              "keyValue": "={{ $('EXRACT  USEFUL  METADATA').item.json.DOC_ID }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2768,
+        -48
+      ],
+      "id": "d9178e0e-03bc-4765-a281-dd3994c72c8d",
+      "name": "UPDATE DOCUMENT RECORD TABLE",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "F11Pn5ORjMbpDP63",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## DELETION WORKFLOW\n",
+        "height": 704,
+        "width": 3488
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        -160
+      ],
+      "id": "6911a299-4ea2-4399-ad65-8c350fa3cf9f",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "11aLU7HHOOiJj6z9jDoxZU9BwJduTZvwD",
+          "mode": "list",
+          "cachedResultName": "RECYCLE BIN",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/11aLU7HHOOiJj6z9jDoxZU9BwJduTZvwD"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        -176,
+        -80
+      ],
+      "id": "475b12a3-3291-40d1-9cbf-d28074e654e0",
+      "name": "ON FILE DELETION",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "aFMaMwmaqVjQg779",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9db2102a-fff5-4ba7-8591-12294c437dff",
+              "name": "DOC_ID",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "6bf41231-c35d-4489-8c32-535865573edc",
+              "name": "DOC_TYPE",
+              "value": "={{ $json.mimeType }}",
+              "type": "string"
+            },
+            {
+              "id": "7bf41231-c35d-4489-8c32-535865573edc",
+              "name": "DOC_NAME",
+              "value": "={{ $json.name }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        576,
+        -64
+      ],
+      "id": "299b6316-9760-4972-ad38-0f6f7d40e2ec",
+      "name": "EXRACT  USEFUL  METADATA",
+      "alwaysOutputData": false
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Loop Over Items3": {
+      "main": [
+        [],
+        [
+          {
+            "node": "EXRACT  USEFUL  METADATA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DELETE ALL OLD ROWS FROM VECTOR STORE BY FILE ID 1": {
+      "main": [
+        [
+          {
+            "node": "AGGREGATE ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DELETE FROM PROCESSED FILES ": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ADD RECORD TO THE DELTED FILES": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CHECK FILE EXIST IN RECORD MANAGER TABLE OR NOT ": {
+      "main": [
+        [
+          {
+            "node": "NOT EXIST",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NOT EXIST": {
+      "main": [
+        [
+          {
+            "node": "ADD RECORD TO THE DELTED FILES",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DELETE ALL OLD ROWS FROM VECTOR STORE BY FILE ID 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AGGREGATE ": {
+      "main": [
+        [
+          {
+            "node": "ADD RAW TO DELTED FILES TABLE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ADD RAW TO DELTED FILES TABLE": {
+      "main": [
+        [
+          {
+            "node": "UPDATE DOCUMENT RECORD TABLE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UPDATE DOCUMENT RECORD TABLE": {
+      "main": [
+        [
+          {
+            "node": "DELETE FROM PROCESSED FILES ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ON FILE DELETION": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "EXRACT  USEFUL  METADATA": {
+      "main": [
+        [
+          {
+            "node": "CHECK FILE EXIST IN RECORD MANAGER TABLE OR NOT ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7da3b0e8-f606-4fd5-a228-c13c63cac579",
+  "meta": {
+    "instanceId": "18bbd58243fd5f2012d589a65b66bb280d57775b60d57fd0ae51837c3241d395"
+  },
+  "id": "lVf9TOb8vwirhEdE",
+  "tags": []
+}

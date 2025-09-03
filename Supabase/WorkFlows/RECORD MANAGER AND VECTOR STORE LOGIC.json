@@ -1,0 +1,449 @@
+{
+  "name": "RECORD MANAGER AND VECTOR STORE LOGIC",
+  "nodes": [
+    {
+      "parameters": {
+        "value": "={{ $json.Content }}",
+        "dataPropertyName": "hash"
+      },
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 1,
+      "position": [
+        -832,
+        112
+      ],
+      "id": "57ca0319-d6d0-44ff-bcb8-355624458488",
+      "name": "HASH THE CONTENT "
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "document_records",
+        "returnAll": true,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "doc_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.Doc_ID }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -608,
+        112
+      ],
+      "id": "60842e7d-1a09-4012-bdb5-b9d792ec3e85",
+      "name": "GET RECORD MANAGER  ROWS BY DOC ID ",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "F11Pn5ORjMbpDP63",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "object",
+                      "operation": "empty",
+                      "singleValue": true
+                    },
+                    "id": "b6aad33b-8044-4493-a82d-eeb7cf7e3408"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "NEW "
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "29115220-bcaf-403c-96eb-e144169e5217",
+                    "leftValue": "={{ $('HASH THE CONTENT ').item.json.hash }}",
+                    "rightValue": "={{ $json.content_hash }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEquals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "EXIST/CHANGED"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "9050794f-9aa0-479f-9d68-59226d06621e",
+                    "leftValue": "={{ $('HASH THE CONTENT ').item.json.hash }}",
+                    "rightValue": "={{ $json.content_hash }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "EXIST/NO CHANGE"
+            }
+          ]
+        },
+        "options": {
+          "ignoreCase": false
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -384,
+        96
+      ],
+      "id": "5669c4e2-bd12-4257-907e-7381d5f7c738",
+      "name": "CHECK "
+    },
+    {
+      "parameters": {
+        "useCustomSchema": true,
+        "operation": "delete",
+        "tableId": "documents",
+        "filterType": "string",
+        "filterString": "=metadata->>file_id=like.*{{ $json.doc_id }}*"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        224
+      ],
+      "id": "0afc5a70-c548-45d2-9fe0-5bd0e5032126",
+      "name": "DELETE ALL OLD ROWS FROM VECTOR STORE BY FILE ID ",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "F11Pn5ORjMbpDP63",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "={{ $json.content }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        96,
+        224
+      ],
+      "id": "76bfa6eb-68db-45ab-b856-463f7d89154a",
+      "name": "AGGREGATE THE RESULT TO ONE ITEM "
+    },
+    {
+      "parameters": {
+        "useCustomSchema": true,
+        "tableId": "document_records",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "doc_id",
+              "fieldValue": "={{ $('When Executed by Another Workflow').item.json.Doc_ID }}"
+            },
+            {
+              "fieldId": "content_hash",
+              "fieldValue": "={{ $('HASH THE CONTENT ').item.json.hash }}"
+            },
+            {
+              "fieldId": "schema",
+              "fieldValue": "={{ $('When Executed by Another Workflow').item.json.SCHEMA }}"
+            },
+            {
+              "fieldId": "file_name",
+              "fieldValue": "={{ $('When Executed by Another Workflow').item.json.FILE_NAME }}"
+            },
+            {
+              "fieldId": "type",
+              "fieldValue": "={{ $('When Executed by Another Workflow').item.json.TYPE }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        32,
+        16
+      ],
+      "id": "1a1daf6c-b577-48ca-a11c-03241b7bbab8",
+      "name": "INSERT NEW RECORD IN RECORD MANAGER ",
+      "alwaysOutputData": false,
+      "credentials": {
+        "supabaseApi": {
+          "id": "F11Pn5ORjMbpDP63",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "document_records",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "doc_id",
+              "condition": "eq",
+              "keyValue": "={{ $('When Executed by Another Workflow').item.json.Doc_ID }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "content_hash",
+              "fieldValue": "={{ $('HASH THE CONTENT ').item.json.hash }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        320,
+        224
+      ],
+      "id": "79079f13-9267-4a82-83fe-2d6872beb9ed",
+      "name": "UPDATE THE RECORD MANAGER TABLE",
+      "credentials": {
+        "supabaseApi": {
+          "id": "F11Pn5ORjMbpDP63",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "metadata_schema"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        512,
+        16
+      ],
+      "id": "47d540f1-52f4-4a02-bcf9-17a9bf9de3d3",
+      "name": "Get The MetaData Schema",
+      "alwaysOutputData": false,
+      "credentials": {
+        "supabaseApi": {
+          "id": "F11Pn5ORjMbpDP63",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        784,
+        16
+      ],
+      "id": "aeffcd8f-a348-4c5e-9952-7fd5019fea9d",
+      "name": "Aggregate1"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "Content"
+            },
+            {
+              "name": "Doc_ID"
+            },
+            {
+              "name": "SCHEMA"
+            },
+            {
+              "name": "TYPE"
+            },
+            {
+              "name": "FILE_NAME"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1056,
+        112
+      ],
+      "id": "62dfe4a5-c8be-4a1e-b2c8-9915638a51a6",
+      "name": "When Executed by Another Workflow"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HASH THE CONTENT ": {
+      "main": [
+        [
+          {
+            "node": "GET RECORD MANAGER  ROWS BY DOC ID ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET RECORD MANAGER  ROWS BY DOC ID ": {
+      "main": [
+        [
+          {
+            "node": "CHECK ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CHECK ": {
+      "main": [
+        [
+          {
+            "node": "INSERT NEW RECORD IN RECORD MANAGER ",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DELETE ALL OLD ROWS FROM VECTOR STORE BY FILE ID ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DELETE ALL OLD ROWS FROM VECTOR STORE BY FILE ID ": {
+      "main": [
+        [
+          {
+            "node": "AGGREGATE THE RESULT TO ONE ITEM ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AGGREGATE THE RESULT TO ONE ITEM ": {
+      "main": [
+        [
+          {
+            "node": "UPDATE THE RECORD MANAGER TABLE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "INSERT NEW RECORD IN RECORD MANAGER ": {
+      "main": [
+        [
+          {
+            "node": "Get The MetaData Schema",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UPDATE THE RECORD MANAGER TABLE": {
+      "main": [
+        [
+          {
+            "node": "Get The MetaData Schema",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get The MetaData Schema": {
+      "main": [
+        [
+          {
+            "node": "Aggregate1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "HASH THE CONTENT ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a9a9d434-671e-4afb-a57f-43dff7c79197",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "18bbd58243fd5f2012d589a65b66bb280d57775b60d57fd0ae51837c3241d395"
+  },
+  "id": "jNLjbXXkOMOsvuA7",
+  "tags": []
+}

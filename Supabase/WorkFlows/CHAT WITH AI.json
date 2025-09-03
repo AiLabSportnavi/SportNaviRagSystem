@@ -1,0 +1,1075 @@
+{
+  "name": "CHAT WITH AI",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://nzvbgbkgoudkimnwetiz.supabase.co/functions/v1/NAIVE-RAG",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "=tell me about rag"
+            },
+            {
+              "name": "distance_method",
+              "value": "inner_product"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2000,
+        256
+      ],
+      "id": "f4452494-6367-4dec-839f-0fa751b0a711",
+      "name": "Naive Retrievel",
+      "credentials": {
+        "supabaseApi": {
+          "id": "F11Pn5ORjMbpDP63",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://nzvbgbkgoudkimnwetiz.supabase.co/functions/v1/HYBRID-SEARCH",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "=query",
+              "value": "={{ $('When chat message received').first().json.chatInput }}"
+            },
+            {
+              "name": "distance_method",
+              "value": "cosine"
+            },
+            {
+              "name": "metadata_filter",
+              "value": "={{ $json.output }}"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2016,
+        -112
+      ],
+      "id": "79f44db2-115e-4914-9cc9-a667f8ec3d12",
+      "name": "Hybrid Retrievel",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "QGi7SRbOrWefvZg5",
+          "name": "Bearer Auth account"
+        },
+        "supabaseApi": {
+          "id": "F11Pn5ORjMbpDP63",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n Code Node - Sort chunks by relevance score\n// Get all input items\nconst allInputs = $input.all();\n\n// Extract results and chunks from the two input items\nlet results, chunks;\n\n// Find the item with results and the item with chunks\nfor (const input of allInputs) {\n    if (input.json.results) {\n        results = input.json.results;\n    }\n    if (input.json.chunks) {\n        chunks = input.json.chunks;\n    }\n}\n\n// Validate that we have the required data\nif (!results || !chunks) {\n    return {\n        json: {\n            error: \"Could not find 'results' or 'chunks' in input data\",\n            inputCount: allInputs.length,\n            inputStructures: allInputs.map(input => Object.keys(input.json))\n        }\n    };\n}\n\n// Create array of objects with chunk content and relevance score\ntry {\n    const chunksWithRelevance = results.map(result => ({\n        chunk: chunks[result.index],\n        relevance: result.relevance_score,\n        originalIndex: result.index\n    }));\n\n    // Sort by relevance score in descending order (highest relevance first)\n    chunksWithRelevance.sort((a, b) => b.relevance - a.relevance);\n\n    // Extract just the chunks in sorted order\n    const sortedChunks = chunksWithRelevance.map(item => item.chunk);\n\n    // Return the sorted chunks array\n    return {\n        json: {\n            sortedChunks: sortedChunks,\n            // Optional: also return with metadata if needed\n            chunksWithMetadata: chunksWithRelevance.map(item => ({\n                chunk: item.chunk,\n                relevance: item.relevance,\n                originalIndex: item.originalIndex\n            })),\n            // Summary info\n            totalChunks: sortedChunks.length,\n            highestRelevance: Math.max(...results.map(r => r.relevance_score)),\n            lowestRelevance: Math.min(...results.map(r => r.relevance_score))\n        }\n    };\n} catch (error) {\n    return {\n        json: {\n            error: \"Error processing data: \" + error.message,\n            resultsCount: results?.length,\n            chunksCount: chunks?.length\n        }\n    };\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        -112
+      ],
+      "id": "b42314ab-c8e4-4666-a543-4bc53a2311c9",
+      "name": "Code2"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -528,
+        -112
+      ],
+      "id": "231720a3-e015-4daf-862a-432879234b7c",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n Code Node - Extract content array from all items\n// Mode should be set to \"Run Once for All Items\"\n\n// Get all input items\nconst allItems = $input.all();\n\n// Extract content from each item\nconst contentArray = allItems.map(item => item.json.content);\n\n// Return the result as a single item with chunks array\nreturn [{\n  json: {\n    chunks: contentArray\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1008,
+        -96
+      ],
+      "id": "7797e539-db85-45df-8c83-5a8009463e84",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "content",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -1264,
+        -96
+      ],
+      "id": "f54362eb-f42b-4f12-85dd-33d909f96230",
+      "name": "Split Out1"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "results",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -1488,
+        -96
+      ],
+      "id": "4f070d16-9992-4453-9b58-52a9e1ad4dd7",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cohere.com/v2/rerank",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "cohereApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"rerank-v3.5\",\n  \"query\":\"tell me about enural network\",\n  \"top_n\": 5,\n  \"documents\": {{JSON.stringify( $json.chunks)}}\n} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -768,
+        -240
+      ],
+      "id": "7f5f9b38-4996-463b-99a9-6e690d27c073",
+      "name": "cohere",
+      "credentials": {
+        "cohereApi": {
+          "id": "NWd6b0jxVrkKD6oM",
+          "name": "CohereApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "query"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -3664,
+        -112
+      ],
+      "id": "3358594a-9643-4c23-b411-2636af253b57",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get input items from previous node\nconst items = $input.all();\n\n// Initialize output string and list of fields\nlet filterPromptInstructions = '';\nlet fieldList = '';\n\n// Function to determine if field contains datetime formats\nfunction isDatetimeField(allowedValues) {\n  if (!allowedValues) return false;\n  const datetimePatterns = ['YYYY-MM-DD', 'HH:MM:SS', 'THH:MM:SSZ'];\n  return datetimePatterns.some(pattern => allowedValues.includes(pattern));\n}\n\n// Function to determine if field is numeric range\nfunction isNumericRangeField(allowedValues) {\n  if (!allowedValues) return false;\n  return allowedValues.includes('numeric_range') || \n         allowedValues.includes('decimal_range') || \n         /\\d+-\\d+/.test(allowedValues);\n}\n\n// Function to format allowed values for display\nfunction formatAllowedValues(fieldName, allowedValues) {\n  if (!allowedValues || allowedValues.trim() === '') {\n    return \"Free text field - no predefined values\";\n  }\n  \n  if (isDatetimeField(allowedValues)) {\n    return \"Datetime format: YYYY-MM-DD\";\n  } else if (isNumericRangeField(allowedValues)) {\n    if (allowedValues.includes('decimal_range')) {\n      return \"Decimal range: 0.0 to 1.0\";\n    }\n    const ranges = allowedValues.split(',').filter(v => v.includes('-') || v.includes('+'));\n    return ranges.length > 0 ? ranges.join('\\n') : \"Numeric range values\";\n  } else if (allowedValues.includes('comma_separated_keywords')) {\n    return \"Comma-separated keywords (e.g., machine_learning,api,database)\";\n  } else {\n    // Split by comma and format as separate lines, filtering out format examples\n    const values = allowedValues.split(',')\n      .filter(v => !v.includes('_') || !v.includes('semantic_version'))\n      .filter(v => v.trim() !== '');\n    return values.join('\\n');\n  }\n}\n\n// Loop through each input item\nfor (const item of items) {\n  const data = item.json;\n  \n  // Process only if field has allowed_values\n  if (data.allowed_values && data.allowed_values.trim() !== '') {\n    // Add to filter prompt instructions\n    filterPromptInstructions += `## ${data.name}\\n`;\n    filterPromptInstructions += `The filter key ${data.name} can have the following possible values\\n\\n`;\n    filterPromptInstructions += formatAllowedValues(data.name, data.allowed_values) + '\\n';\n    \n    // Add to field list\n    if (fieldList !== '') {\n      fieldList += ',';\n    }\n    fieldList += `\"${data.name}\":\"<ADD>\"`;\n  }\n}\n\n// Return the final output\nreturn [{\n  json: {\n    \"filterPromptInstructions\": filterPromptInstructions.trim(),\n    \"list_of_fields\": fieldList\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3024,
+        -112
+      ],
+      "id": "22a8b793-eafd-4e82-a7cd-5766d8674521",
+      "name": "Code4"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('When chat message received').first().json.chatInput }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=# Enhanced Metadata Filter System Prompt\n\n## Core Task\nAnalyze user queries and generate JSON filters using ONLY the available metadata fields and values from `{{ $json.filterPromptInstructions }}`.\n\n## Available Metadata Fields\nThe system will provide available fields and their possible values in `{{ $json.filterPromptInstructions }}`.\n\n**Example metadata structure:**\n```json\n{\n  \"department\": [\"IT\", \"Engineering\", \"Marketing\", \"Sales\", \"HR\"],\n  \"blobType\": [\"text/plain\", \"application/pdf\", \"image/jpeg\", \"application/json\"],\n  \"source\": [\"blob\", \"upload\", \"api\", \"import\"],\n  \"priority\": [1, 2, 3, 4, 5],\n  \"status\": [\"draft\", \"published\", \"archived\", \"pending\"],\n  \"tags\": [\"urgent\", \"confidential\", \"public\", \"internal\"]\n}\n```\n\n## Intelligence Rules\n\n### 1. **Strict Field Validation**\n- ✅ ONLY use fields that exist in `{{ $json.filterPromptInstructions }}`\n- ✅ ONLY use values that are listed for each field\n- ❌ NEVER create new fields or guess values\n- ❌ NEVER use fields not provided in the metadata\n\n### 2. **Intent Inference Patterns**\n\n#### **Department/Team Queries**\n- \"IT documents\", \"engineering files\", \"marketing materials\" → `department` field\n- \"from HR\", \"sales team\", \"dev team\" → `department` field\n\n#### **File Type Queries**  \n- \"PDF files\", \"text documents\", \"images\" → `blobType` field\n- \"JSON data\", \"plain text\", \"documents\" → `blobType` field\n\n#### **Status/State Queries**\n- \"published content\", \"draft documents\", \"archived files\" → `status` field\n- \"pending items\", \"active documents\" → `status` field\n\n#### **Priority Queries**\n- \"high priority\", \"urgent\", \"important\" → `priority` field (high values)\n- \"low priority\", \"minor\" → `priority` field (low values)\n\n#### **Source Queries**\n- \"uploaded files\", \"imported data\", \"API content\" → `source` field\n\n#### **Tag-based Queries**\n- \"confidential documents\", \"public files\", \"internal use\" → `tags` field\n- \"urgent items\", \"sensitive data\" → `tags` field\n\n### 3. **Query Analysis Logic**\n```\n1. Extract key terms from user query\n2. Check if terms match any field names (exact or synonyms)\n3. Check if terms match any field values (exact or synonyms)\n4. Map user intent to appropriate operators\n5. Generate filter or return empty if no matches\n```\n\n### 4. **Operator Selection Rules**\n\n| User Intent | Operator | Example |\n|-------------|----------|---------|\n| Exact match | `eq` | \"IT documents\" → `{\"field\": \"department\", \"operator\": \"eq\", \"value\": \"IT\"}` |\n| Exclusion | `neq` | \"not archived\" → `{\"field\": \"status\", \"operator\": \"neq\", \"value\": \"archived\"}` |\n| Multiple options | `in` | \"PDF or images\" → `{\"field\": \"blobType\", \"operator\": \"in\", \"value\": [\"application/pdf\", \"image/jpeg\"]}` |\n| Minimum threshold | `gte` | \"high priority\" → `{\"field\": \"priority\", \"operator\": \"gte\", \"value\": 4}` |\n| Maximum threshold | `lte` | \"low priority\" → `{\"field\": \"priority\", \"operator\": \"lte\", \"value\": 2}` |\n| Contains (arrays) | `cs` | \"urgent items\" → `{\"field\": \"tags\", \"operator\": \"cs\", \"value\": [\"urgent\"]}` |\n| Text search | `ilike` | \"contains 'report'\" → `{\"field\": \"title\", \"operator\": \"ilike\", \"value\": \"%report%\"}` |\n\n## Examples\n\n### Simple Queries\n```\nQuery: \"show me IT documents\"\nAnalysis: \"IT\" matches department value\nOutput: {\n  \"filter\": {\n    \"conditions\": [\n      {\"field\": \"department\", \"operator\": \"eq\", \"value\": \"IT\"}\n    ]\n  }\n}\n\nQuery: \"PDF files only\"\nAnalysis: \"PDF\" maps to \"application/pdf\" in blobType\nOutput: {\n  \"filter\": {\n    \"conditions\": [\n      {\"field\": \"blobType\", \"operator\": \"eq\", \"value\": \"application/pdf\"}\n    ]\n  }\n}\n\nQuery: \"high priority items\"\nAnalysis: \"high priority\" maps to priority >= 4\nOutput: {\n  \"filter\": {\n    \"conditions\": [\n      {\"field\": \"priority\", \"operator\": \"gte\", \"value\": 4}\n    ]\n  }\n}\n\nQuery: \"not archived files\"\nAnalysis: \"not archived\" maps to status != \"archived\"\nOutput: {\n  \"filter\": {\n    \"conditions\": [\n      {\"field\": \"status\", \"operator\": \"neq\", \"value\": \"archived\"}\n    ]\n  }\n}\n```\n\n### Complex Queries\n```\nQuery: \"urgent engineering documents that are published\"\nAnalysis: Multiple conditions - tags contains \"urgent\", department = \"Engineering\", status = \"published\"\nOutput: {\n  \"filter\": {\n    \"conditions\": [\n      {\"field\": \"department\", \"operator\": \"eq\", \"value\": \"Engineering\"},\n      {\"field\": \"status\", \"operator\": \"eq\", \"value\": \"published\"},\n      {\"field\": \"tags\", \"operator\": \"cs\", \"value\": [\"urgent\"]}\n    ]\n  }\n}\n\nQuery: \"IT or Marketing documents with high priority\"\nAnalysis: (department = IT OR department = Marketing) AND priority >= 4\nOutput: {\n  \"filter\": {\n    \"conditions\": [\n      {\"field\": \"priority\", \"operator\": \"gte\", \"value\": 4}\n    ],\n    \"groups\": [\n      {\n        \"operator\": \"or\",\n        \"conditions\": [\n          {\"field\": \"department\", \"operator\": \"eq\", \"value\": \"IT\"},\n          {\"field\": \"department\", \"operator\": \"eq\", \"value\": \"Marketing\"}\n        ]\n      }\n    ]\n  }\n}\n```\n\n### No Match Scenarios\n```\nQuery: \"tell me about rag systems\"\nAnalysis: No terms match available metadata fields/values\nOutput: {\"filter\": {}}\n\nQuery: \"show me blockchain documents\"\nAnalysis: \"blockchain\" not found in any available values\nOutput: {\"filter\": {}}\n\nQuery: \"files from last week\"\nAnalysis: No date fields available in metadata\nOutput: {\"filter\": {}}\n```\n\n## Output Format\n\n### Structure\n```json\n{\n  \"filter\": {\n    \"conditions\": [\n      {\"field\": \"string\", \"operator\": \"string\", \"value\": \"any\"}\n    ],\n    \"groups\": [\n      {\n        \"operator\": \"and|or\",\n        \"conditions\": [\n          {\"field\": \"string\", \"operator\": \"string\", \"value\": \"any\"}\n        ]\n      }\n    ]\n  }\n}\n```\n\n### Empty Filter\n```json\n{\"filter\": {}}\n```\n\n## Validation Checklist\nBefore generating any filter:\n- [ ] All field names exist in `{{ $json.filterPromptInstructions }}`\n- [ ] All values are valid for their respective fields\n- [ ] Operators are appropriate for the data types\n- [ ] Logic structure matches user intent\n- [ ] Complex queries use proper grouping\n\n## Error Prevention\n- **Double-check field existence**: If unsure about a field, return empty filter\n- **Validate values**: Only use values explicitly listed in the metadata\n- **Logical grouping**: Use groups only when user query implies OR/AND logic\n- **Operator matching**: Use appropriate operators for the query intent\n\n## Common Synonyms & Mappings\n- \"docs/documents\" → look for document-related blobTypes\n- \"team/dept\" → department field  \n- \"files\" → general term, context-dependent\n- \"urgent/important/critical\" → high priority or urgent tag\n- \"recent/new\" → look for date fields or status\n- \"old/archived\" → archived status\n- \"public/private\" → look in tags or status fields"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -2736,
+        -112
+      ],
+      "id": "8d176468-0a6a-4907-bfad-fadb60f80f79",
+      "name": "Basic LLM Chain1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-20250514",
+          "cachedResultName": "Claude 4 Sonnet"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        -2736,
+        240
+      ],
+      "id": "734c45d4-5532-40b1-bf99-0c5efd8f543c",
+      "name": "Anthropic Chat Model1",
+      "credentials": {
+        "anthropicApi": {
+          "id": "XgngEwlr4TIlflo0",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n  \"title\": \"Supabase Metadata Filtering Schema\",\n  \"type\": \"object\",\n  \"properties\": {\n    \"filters\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"field\": {\n            \"type\": \"string\",\n            \"enum\": [\"source\", \"blobType\", \"department\", \"file_date\", \"file_id\"]\n          },\n          \"operator\": {\n            \"type\": \"string\",\n            \"enum\": [\n              \"eq\", \"neq\", \"gt\", \"gte\", \"lt\", \"lte\",\n              \"like\", \"ilike\", \"in\", \"contains\", \n              \"is\", \"not\"\n            ]\n          },\n          \"value\": {}\n        },\n        \"required\": [\"field\", \"operator\", \"value\"]\n      }\n    }\n  }\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -2592,
+        240
+      ],
+      "id": "55d1a9db-accc-4ab8-8056-9ee2d024a84b",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "metadata_schema",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -3328,
+        -112
+      ],
+      "id": "63788e85-418f-4c65-8541-c05e0a75c2fa",
+      "name": "Get many rows",
+      "credentials": {
+        "supabaseApi": {
+          "id": "F11Pn5ORjMbpDP63",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "public": "={{ true }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -3648,
+        112
+      ],
+      "id": "3923866f-65c0-458c-ac51-731a126ee4ef",
+      "name": "When chat message received",
+      "webhookId": "e7db2a3a-6f1a-43c9-bed2-09b967b8e2fe"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -3744,
+        1088
+      ],
+      "id": "d9b5e9e5-a521-4ca7-b81e-c060508fbcbb",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "s8ggF15OFQuWfBtf",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        -3536,
+        1280
+      ],
+      "id": "b6e0d22b-4257-4490-9e90-af443942c483",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "m1UUBkHDDbDfNWrB",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Executes SQL queries on the raw_data_table containing JSONB data from Excel/CSV files",
+        "operation": "executeQuery",
+        "query": "{{ $fromAI(\"sql_query\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        -2992,
+        1264
+      ],
+      "id": "9295fa8c-c8ad-47ef-b0c4-6a8bd706a0a3",
+      "name": "execute_query",
+      "credentials": {
+        "postgres": {
+          "id": "m1UUBkHDDbDfNWrB",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "# Returns all available doc_ids, table schemas, data types, and structure information from document_records table",
+        "operation": "executeQuery",
+        "query": "SELECT doc_id, file_name, schema \nFROM document_records \nWHERE type = 'Structured Data';",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        -2736,
+        1152
+      ],
+      "id": "faff2fa3-1a78-4506-963e-48aa771054c2",
+      "name": "get_structured_data_schema",
+      "credentials": {
+        "postgres": {
+          "id": "m1UUBkHDDbDfNWrB",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": " Searches vector database and returns relevant document chunks ranked by relevance score for the user query",
+        "workflowId": {
+          "__rl": true,
+          "value": "FWtjHkUxiab4wp5o",
+          "mode": "list",
+          "cachedResultName": "INGESTION WORKFLOW"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "query"
+          ],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        -3200,
+        1328
+      ],
+      "id": "a9a20884-582c-4c61-b825-83eec3b0ea80",
+      "name": "retrieval"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -2384,
+        1152
+      ],
+      "id": "89c769a4-72f8-4119-bd20-189563e70614",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "s8ggF15OFQuWfBtf",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        -2176,
+        1344
+      ],
+      "id": "e7f10bc2-83f9-46f2-bc6a-39c1771a935b",
+      "name": "Postgres Chat Memory1",
+      "credentials": {
+        "postgres": {
+          "id": "m1UUBkHDDbDfNWrB",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Executes SQL queries on the raw_data_table containing JSONB data from Excel/CSV files",
+        "operation": "executeQuery",
+        "query": "{{ $fromAI(\"sql_query\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        -1632,
+        1328
+      ],
+      "id": "16631437-b6e2-4f00-ae70-7d5182cb8ba4",
+      "name": "execute_query1",
+      "credentials": {
+        "postgres": {
+          "id": "m1UUBkHDDbDfNWrB",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "# Returns all available doc_ids, table schemas, data types, and structure information from document_records table",
+        "operation": "executeQuery",
+        "query": "SELECT doc_id, file_name, schema \nFROM document_records \nWHERE type = 'Structured Data';",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        -1376,
+        1216
+      ],
+      "id": "18bd7242-2e66-4d23-88cf-c3a2eba59a13",
+      "name": "get_structured_data_schema1",
+      "credentials": {
+        "postgres": {
+          "id": "m1UUBkHDDbDfNWrB",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": " Searches vector database and returns relevant document chunks ranked by relevance score for the user query",
+        "workflowId": {
+          "__rl": true,
+          "value": "FWtjHkUxiab4wp5o",
+          "mode": "list",
+          "cachedResultName": "INGESTION WORKFLOW"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "query"
+          ],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        -1840,
+        1392
+      ],
+      "id": "2d7c4e20-b5d4-4180-87c9-80bb8c96d629",
+      "name": "retrieval1"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=# AI Agent System Prompt\n\nYou are a retrieval-augmented AI agent that routes queries between structured data analysis and document retrieval based on user intent.\n\n## Decision Framework\n\n### Use Structured Data Path for:\n- **Aggregations**: SUM, COUNT, AVG, MAX, MIN operations\n- **Complex filtering, joins, statistical analysis**\n**Keywords**: \"total\", \"sum\", \"average\", \"count\", \"calculate\", \"analyze\", \"compare\", \"highest\", \"lowest\", \"breakdown\", \"trends\", \"percentage\"\n\n### Use RAG Path for:\n- **Everything else**: Explanations, policies, procedures, concepts, visual content requests\n\n## Workflow\n\n### Structured Data:\n1. Call `get_structured_data_schema` → Get available doc_ids\n2. Generate JSONB SQL query on `raw_data_table`\n3. Call `execute_query` → Present results\n\n### RAG:\n1. Call `retrieval` tool → Get relevant chunks\n2. **If URLs/images returned**: Display and cite properly\n3. Synthesize response from retrieved content\n\n## Citation Requirements\n- **Text sources**: `Source: [Document](link)` if available\n- **Images/URLs**: When retrieval returns URLs, always cite: `[Image/Source](url)`\n- **Display images**: If image URLs returned, show with `![Description](url)`\n\n## Key JSONB Operators\n- `raw_data->>'field'`: Extract as text\n- `(raw_data->>'field')::numeric`: Cast to number\n- Always filter by `doc_id` first\n\n## Available Tools\n- **`get_structured_data_schema`**: Returns doc_ids and table schemas\n- **`execute_query`**: Executes SQL on raw_data_table\n- **`retrieval`**: Searches documents, returns ranked chunks (may include URLs/images)\n\n## **CRITICAL: Honesty Protocol**\n- **If you don't know or can't find information → Say \"I don't know\"**\n- **Never fabricate or guess when tools return no/irrelevant results**\n- **Be transparent about limitations**\n\n### Format for Unknown:\n```\nI don't know [specific aspect]. \n[Optional: What was searched]\n```\n\n## Priority Order:\n1. **Structured Data** (numerical/analytical)\n2. **RAG** (text, images, everything else)\n3. **Honesty First** (always prioritize truthful \"I don't know\")"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -3312,
+        768
+      ],
+      "id": "1cf34868-5781-4499-85a7-c3e84bcbd097",
+      "name": "AGENT FOR ALL TYPES OF DOCS"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=# AI Agent System Prompt\n\nYou are a retrieval-augmented AI agent that routes queries between structured data analysis and document retrieval based on user intent.\n\n## Decision Framework\n\n### Use Structured Data Path for:\n- **Aggregations**: SUM, COUNT, AVG, MAX, MIN operations\n- **Complex filtering, joins, statistical analysis**\n**Keywords**: \"total\", \"sum\", \"average\", \"count\", \"calculate\", \"analyze\", \"compare\", \"highest\", \"lowest\", \"breakdown\", \"trends\", \"percentage\"\n\n### Use RAG Path for:\n- **Everything else**: Explanations, policies, procedures, concepts, visual content requests\n\n## Workflow\n\n### Structured Data:\n1. Call `get_structured_data_schema` → Get available doc_ids\n2. Generate JSONB SQL query on `raw_data_table`\n3. Call `execute_query` → Present results\n\n### RAG:\n1. Call `retrieval` tool → Get relevant chunks\n2. **If URLs/images returned**: Display and cite properly\n3. Synthesize response from retrieved content\n\n## Citation Requirements\n- **Text sources**: `Source: [Document](link)` if available\n- **Images/URLs**: When retrieval returns URLs, always cite: `[Image/Source](url)`\n- **Display images**: If image URLs returned, show with `![Description](url)`\n\n## Key JSONB Operators\n- `raw_data->>'field'`: Extract as text\n- `(raw_data->>'field')::numeric`: Cast to number\n- Always filter by `doc_id` first\n\n## Available Tools\n- **`get_structured_data_schema`**: Returns doc_ids and table schemas\n- **`execute_query`**: Executes SQL on raw_data_table\n- **`retrieval`**: Searches documents, returns ranked chunks (may include URLs/images)\n\n## **CRITICAL: Honesty Protocol**\n- **If you don't know or can't find information → Say \"I don't know\"**\n- **Never fabricate or guess when tools return no/irrelevant results**\n- **Be transparent about limitations**\n\n### Format for Unknown:\n```\nI don't know [specific aspect]. \n[Optional: What was searched]\n```\n\n## Priority Order:\n1. **Structured Data** (numerical/analytical)\n2. **RAG** (text, images, everything else)\n3. **Honesty First** (always prioritize truthful \"I don't know\")"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -1952,
+        800
+      ],
+      "id": "b6de1c01-086a-447f-a021-090c0fa6e62e",
+      "name": "AGENT FOR HYBRID SEARCH RESPONSES"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -1056,
+        1200
+      ],
+      "id": "3c1c291a-bb5e-4cdd-a712-ffbb0c4ce092",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "s8ggF15OFQuWfBtf",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        -848,
+        1392
+      ],
+      "id": "c4a5d0b6-d7ae-4098-aaac-8582224148db",
+      "name": "Postgres Chat Memory2",
+      "credentials": {
+        "postgres": {
+          "id": "m1UUBkHDDbDfNWrB",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Executes SQL queries on the raw_data_table containing JSONB data from Excel/CSV files",
+        "operation": "executeQuery",
+        "query": "{{ $fromAI(\"sql_query\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        -304,
+        1376
+      ],
+      "id": "a4b856b2-6559-45a0-8350-89bcdbc291d9",
+      "name": "execute_query2",
+      "credentials": {
+        "postgres": {
+          "id": "m1UUBkHDDbDfNWrB",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "# Returns all available doc_ids, table schemas, data types, and structure information from document_records table",
+        "operation": "executeQuery",
+        "query": "SELECT doc_id, file_name, schema \nFROM document_records \nWHERE type = 'Structured Data';",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        -48,
+        1264
+      ],
+      "id": "21349060-9cd2-4f8b-8ac0-869c07b861dd",
+      "name": "get_structured_data_schema2",
+      "credentials": {
+        "postgres": {
+          "id": "m1UUBkHDDbDfNWrB",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": " Searches vector database and returns relevant document chunks ranked by relevance score for the user query",
+        "workflowId": {
+          "__rl": true,
+          "value": "FWtjHkUxiab4wp5o",
+          "mode": "list",
+          "cachedResultName": "INGESTION WORKFLOW"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "query"
+          ],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        -512,
+        1440
+      ],
+      "id": "e820f582-826b-44ff-bf1e-cf1e42108926",
+      "name": "retrieval2"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=# AI Agent System Prompt\n\nYou are a retrieval-augmented AI agent that routes queries between structured data analysis and document retrieval based on user intent.\n\n## Decision Framework\n\n### Use Structured Data Path for:\n- **Aggregations**: SUM, COUNT, AVG, MAX, MIN operations\n- **Complex filtering, joins, statistical analysis**\n**Keywords**: \"total\", \"sum\", \"average\", \"count\", \"calculate\", \"analyze\", \"compare\", \"highest\", \"lowest\", \"breakdown\", \"trends\", \"percentage\"\n\n### Use RAG Path for:\n- **Everything else**: Explanations, policies, procedures, concepts, visual content requests\n\n## Workflow\n\n### Structured Data:\n1. Call `get_structured_data_schema` → Get available doc_ids\n2. Generate JSONB SQL query on `raw_data_table`\n3. Call `execute_query` → Present results\n\n### RAG:\n1. Call `retrieval` tool → Get relevant chunks\n2. **If URLs/images returned**: Display and cite properly\n3. Synthesize response from retrieved content\n\n## Citation Requirements\n- **Text sources**: `Source: [Document](link)` if available\n- **Images/URLs**: When retrieval returns URLs, always cite: `[Image/Source](url)`\n- **Display images**: If image URLs returned, show with `![Description](url)`\n\n## Key JSONB Operators\n- `raw_data->>'field'`: Extract as text\n- `(raw_data->>'field')::numeric`: Cast to number\n- Always filter by `doc_id` first\n\n## Available Tools\n- **`get_structured_data_schema`**: Returns doc_ids and table schemas\n- **`execute_query`**: Executes SQL on raw_data_table\n- **`retrieval`**: Searches documents, returns ranked chunks (may include URLs/images)\n\n## **CRITICAL: Honesty Protocol**\n- **If you don't know or can't find information → Say \"I don't know\"**\n- **Never fabricate or guess when tools return no/irrelevant results**\n- **Be transparent about limitations**\n\n### Format for Unknown:\n```\nI don't know [specific aspect]. \n[Optional: What was searched]\n```\n\n## Priority Order:\n1. **Structured Data** (numerical/analytical)\n2. **RAG** (text, images, everything else)\n3. **Honesty First** (always prioritize truthful \"I don't know\")"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -624,
+        848
+      ],
+      "id": "4386f12f-44ca-4e5b-afb4-55755786e34b",
+      "name": "AGENT FOR NAIVE RAG RESPONSES"
+    }
+  ],
+  "pinData": {
+    "Basic LLM Chain1": [
+      {
+        "json": {
+          "output": {
+            "filters": []
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Hybrid Retrievel": {
+      "main": [
+        []
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "cohere",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out1": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Split Out1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "cohere": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        []
+      ]
+    },
+    "Code4": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain1": {
+      "main": [
+        [
+          {
+            "node": "Hybrid Retrievel",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Naive Retrievel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows": {
+      "main": [
+        [
+          {
+            "node": "Code4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AGENT FOR ALL TYPES OF DOCS",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AGENT FOR ALL TYPES OF DOCS",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "execute_query": {
+      "ai_tool": [
+        [
+          {
+            "node": "AGENT FOR ALL TYPES OF DOCS",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_structured_data_schema": {
+      "ai_tool": [
+        [
+          {
+            "node": "AGENT FOR ALL TYPES OF DOCS",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "retrieval": {
+      "ai_tool": [
+        [
+          {
+            "node": "AGENT FOR ALL TYPES OF DOCS",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AGENT FOR HYBRID SEARCH RESPONSES",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AGENT FOR HYBRID SEARCH RESPONSES",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "execute_query1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AGENT FOR HYBRID SEARCH RESPONSES",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_structured_data_schema1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AGENT FOR HYBRID SEARCH RESPONSES",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "retrieval1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AGENT FOR HYBRID SEARCH RESPONSES",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AGENT FOR NAIVE RAG RESPONSES",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory2": {
+      "ai_memory": [
+        [
+          {
+            "node": "AGENT FOR NAIVE RAG RESPONSES",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "execute_query2": {
+      "ai_tool": [
+        [
+          {
+            "node": "AGENT FOR NAIVE RAG RESPONSES",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_structured_data_schema2": {
+      "ai_tool": [
+        [
+          {
+            "node": "AGENT FOR NAIVE RAG RESPONSES",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "retrieval2": {
+      "ai_tool": [
+        [
+          {
+            "node": "AGENT FOR NAIVE RAG RESPONSES",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5c321799-8f51-4041-851b-1118a41ee574",
+  "meta": {
+    "instanceId": "18bbd58243fd5f2012d589a65b66bb280d57775b60d57fd0ae51837c3241d395"
+  },
+  "id": "OXw8YPG4spwbWSxq",
+  "tags": []
+}

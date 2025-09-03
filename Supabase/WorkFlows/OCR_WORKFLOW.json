@@ -1,0 +1,972 @@
+{
+  "name": "OCR_WORKFLOW",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "DOC_ID"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1152,
+        1472
+      ],
+      "id": "9398f3d4-8a6a-4f27-b045-a04572b929b3",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.DOC_ID }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -864,
+        1472
+      ],
+      "id": "fcd40193-673f-4643-b8ce-110f02c45cab",
+      "name": "DOWNLOAD THE CURRENT DOC 1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "aFMaMwmaqVjQg779",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.mistral.ai/v1/files",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mistralCloudApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer $MISTRAL_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "purpose",
+              "value": "ocr"
+            },
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -464,
+        1472
+      ],
+      "id": "735d5578-fcf2-4da5-b62a-eaecdbbfc5e5",
+      "name": "UPLOAD FILE TO MISTERAL ",
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "w72h424x8gInbvOM",
+          "name": "Mistral Cloud account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.mistral.ai/v1/files/{{$json.id}}/url",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mistralCloudApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "expiry",
+              "value": "24"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer $MISTRAL_API_KEY"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -256,
+        1472
+      ],
+      "id": "2c8df6af-a526-427c-a599-c1dd67fda1d2",
+      "name": "GET SIGNED URL ",
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "w72h424x8gInbvOM",
+          "name": "Mistral Cloud account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.mistral.ai/v1/ocr",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"mistral-ocr-latest\",\n  \"document\": {\n    \"document_url\": \"{{$json.url}}\"\n  },\n  \"bbox_annotation_format\": {\n    \"type\": \"json_schema\",\n    \"json_schema\": {\n      \"schema\": {\n        \"properties\": {\n          \"document_type\": {\n            \"title\": \"Document_Type\",\n            \"type\": \"string\"\n          },\n          \"short_description\": {\n            \"title\": \"Short_Description\",\n            \"type\": \"string\"\n          },\n          \"summary\": {\n            \"title\": \"Summary\",\n            \"type\": \"string\"\n          }\n        },\n        \"required\": [\n          \"document_type\",\n          \"short_description\",\n          \"summary\"\n        ],\n        \"title\": \"BBOXAnnotation\",\n        \"type\": \"object\",\n        \"additionalProperties\": false\n      },\n      \"name\": \"document_annotation\",\n      \"strict\": true\n    }\n  },\n  \"include_image_base64\": true\n} ",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -48,
+        1472
+      ],
+      "id": "84887799-ea4a-44cd-aec3-32dbeba6647e",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "QGi7SRbOrWefvZg5",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3f40f45f-855d-4e9f-ab4b-cf9cbd4e8b0b",
+              "name": "image_base64",
+              "value": "={{ $('IMAGES').item.json.image_base64.replace(/^data:image\\/[^;]+;base64,/, '') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3056,
+        1584
+      ],
+      "id": "c01c9c9b-c080-4a9c-bcbf-6cb597cdc9c3",
+      "name": "GET THE IMAGE BASE 64 PART"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "image_base64",
+        "binaryPropertyName": "=data",
+        "options": {
+          "fileName": "={{ $('GET SUPABASE STORAGE FILE TITLE').item.json.image_title }}"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        3360,
+        1728
+      ],
+      "id": "05aab1b9-2519-407c-b25b-06afdbffae16",
+      "name": "CONVERT TO BINARY ",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "pages",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        304,
+        1472
+      ],
+      "id": "6c90b026-cc01-405d-a325-7231eb96199c",
+      "name": "EXTRACT THE PAGES 1"
+    },
+    {
+      "parameters": {
+        "model": "=llama3-8b-8192",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        2048,
+        2016
+      ],
+      "id": "5894a000-38f1-4ffe-920b-891cf6715b60",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "cuCi1Ews1jiefdF7",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "75284a13-4a75-4c64-823b-e1a96cfa5341",
+              "name": "image_title",
+              "value": "={{ $json.text.replace(/['\"àáâãäåæçèéêëìíîïñòóôõöøùúûüýÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜÝ]/g, function(match) {\n  const map = {\n    'à': 'a', 'á': 'a', 'â': 'a', 'ã': 'a', 'ä': 'a', 'å': 'a', 'æ': 'ae',\n    'ç': 'c', 'è': 'e', 'é': 'e', 'ê': 'e', 'ë': 'e',\n    'ì': 'i', 'í': 'i', 'î': 'i', 'ï': 'i', 'ñ': 'n',\n    'ò': 'o', 'ó': 'o', 'ô': 'o', 'õ': 'o', 'ö': 'o', 'ø': 'o',\n    'ù': 'u', 'ú': 'u', 'û': 'u', 'ü': 'u', 'ý': 'y',\n    'À': 'A', 'Á': 'A', 'Â': 'A', 'Ã': 'A', 'Ä': 'A', 'Å': 'A', 'Æ': 'AE',\n    'Ç': 'C', 'È': 'E', 'É': 'E', 'Ê': 'E', 'Ë': 'E',\n    'Ì': 'I', 'Í': 'I', 'Î': 'I', 'Ï': 'I', 'Ñ': 'N',\n    'Ò': 'O', 'Ó': 'O', 'Ô': 'O', 'Õ': 'O', 'Ö': 'O', 'Ø': 'O',\n    'Ù': 'U', 'Ú': 'U', 'Û': 'U', 'Ü': 'U', 'Ý': 'Y',\n    \"'\": '', '\"': ''\n  };\n  return map[match] || '';\n}).replace(/\\s+/g, '_').replace(/[^a-zA-Z0-9._-]/g, '') }}_{{ (new Date()).toISOString().replace(/[:.]/g, '-') }}",
+              "type": "string"
+            },
+            {
+              "id": "a3cd71c3-70b5-4cc8-9a76-cfdfbc2e07f7",
+              "name": "id",
+              "value": "={{ $('IMAGES').item.json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2608,
+        1584
+      ],
+      "id": "207e68da-dada-4ae1-a8b1-26516be20a45",
+      "name": "GET SUPABASE STORAGE FILE TITLE"
+    },
+    {
+      "parameters": {
+        "method": "=POST",
+        "url": "=https://nzvbgbkgoudkimnwetiz.supabase.co/storage/v1/object/multi-rag/{{ $binary.data.fileName}}\n",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3696,
+        1728
+      ],
+      "id": "28a50ec8-36fe-431b-8cd7-a8304431b760",
+      "name": "SAVE ALL THE  IMAGES IN SUPABASE  BUCKET STORAGE",
+      "retryOnFail": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "F11Pn5ORjMbpDP63",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9dc56ccc-7084-49a4-ba4d-4f32d109181a",
+              "name": "title",
+              "value": "={{ $('GET SUPABASE STORAGE FILE TITLE').item.json.image_title }} ",
+              "type": "string"
+            },
+            {
+              "id": "69516275-4334-49ac-a6ae-c535a043f992",
+              "name": "id",
+              "value": "={{ $('GET SUPABASE STORAGE FILE TITLE').item.json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4064,
+        1728
+      ],
+      "id": "d76cc710-4fb3-4e78-87a8-351b44a8b0d8",
+      "name": "EXTRACT TITLE"
+    },
+    {
+      "parameters": {
+        "content": "##  SET MISTRAL OCR FILES \n",
+        "height": 320,
+        "width": 704
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -624,
+        1376
+      ],
+      "typeVersion": 1,
+      "id": "abc71048-fa6f-47d1-bf4a-6de6b9118604",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=# image  annotations  :\n {{ $json.image_annotation }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "Based solely on the image annotation, respond with just the file name (no file extension, no title formatting, no extra text)."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        2032,
+        1584
+      ],
+      "id": "257cd083-c98c-4a5d-848b-17da729bf421",
+      "name": "Basic LLM Chain2"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "advanced": true,
+        "mergeByFields": {
+          "values": [
+            {
+              "field1": "id",
+              "field2": "id"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        4640,
+        1840
+      ],
+      "id": "72055ddf-3fc0-480f-9ad0-869fc436aa44",
+      "name": "Merge2"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// n8n Code Node - Enhanced Image Processing with Supabase URLs and Rich Context\nconst SUPABASE_BASE_URL = 'https://nzvbgbkgoudkimnwetiz.supabase.co/storage/v1/object/public/multi-rag';\n\n// Clean filename for URL while preserving readability\nfunction cleanFilename(str) {\n  const extMatch = str.match(/\\.(jpeg|jpg|png|gif|webp|bmp)$/i);\n  const ext = extMatch ? '.' + extMatch[1].toLowerCase() : '';\n  const nameWithoutExt = ext ? str.slice(0, -ext.length) : str;\n  \n  return nameWithoutExt\n    .replace(/[^\\w\\s-_.]/g, '') // Remove special chars but keep spaces, hyphens, underscores\n    .replace(/\\s+/g, ' ')       // Multiple spaces to single space\n    .trim()\n    + ext;\n}\n\n// Generate rich annotation block for LLM context\nfunction generateAnnotationBlock(meta, imageId) {\n  const title = meta.title || 'Untitled Image';\n  const desc = meta.annotation?.short_description || 'No description available';\n  const summary = meta.annotation?.summary || 'No detailed summary available';\n  \n  return `\n\n---\n**Image Context:**\n- **Title:** ${title}\n- **Description:** ${desc}\n- **Summary:** ${summary}\n- **Image ID:** ${imageId}\n---\n\n`;\n}\n\ntry {\n  const item = $input.item;\n  const data = item.json || item;\n  const inputArray = Array.isArray(data) ? data : [data];\n\n  // Step 1: Build comprehensive image metadata map\n  const imageMetadataMap = {};\n\n  inputArray.forEach(doc => {\n    // Handle different possible image source structures\n    const imageSources = [\n      doc[\"UPLOADED IMAGES \"],\n      doc[\"images\"],\n      doc.images\n    ].filter(Boolean);\n\n    imageSources.forEach(imagesSource => {\n      if (Array.isArray(imagesSource)) {\n        imagesSource.forEach(img => {\n          if (!img.id) return;\n\n          const rawTitle = img.title || img.id || 'Unknown-Image';\n          const displayTitle = rawTitle.replace(/\\s*}}\\s*$/, '').trim();\n          const cleanTitleForUrl = cleanFilename(displayTitle);\n\n          let annotation = null;\n          if (img.image_annotation) {\n            try {\n              annotation = typeof img.image_annotation === 'string'\n                ? JSON.parse(img.image_annotation)\n                : img.image_annotation;\n            } catch (e) {\n              console.warn(`Failed to parse annotation for ${img.id}:`, e);\n              annotation = {\n                short_description: displayTitle,\n                summary: 'Annotation parsing failed'\n              };\n            }\n          }\n\n          imageMetadataMap[img.id] = {\n            title: displayTitle,\n            filename: cleanTitleForUrl,\n            annotation: annotation || {\n              short_description: displayTitle,\n              summary: 'No annotation available'\n            }\n          };\n        });\n      }\n    });\n  });\n\n  // Step 2: Process markdown with enhanced image embedding\n  function processMarkdownContent(markdownText) {\n    if (typeof markdownText !== 'string') return markdownText;\n\n    let processedMarkdown = markdownText;\n    const processedImages = new Set();\n\n    // Enhanced regex to capture various image formats\n    const imageRegex = /!\\[([^\\]]*)\\]\\(([^)\\s]+)(?:\\s*[\"']([^\"']*?)[\"'])?\\)/g;\n    const replacements = [];\n\n    let match;\n    while ((match = imageRegex.exec(markdownText)) !== null) {\n      const fullMatch = match[0];\n      const altText = match[1] || '';\n      const originalPath = match[2];\n      const title = match[3] || '';\n\n      // Extract image ID from path\n      const imageId = originalPath.split('/').pop()?.trim();\n      \n      if (!imageId || !imageMetadataMap[imageId] || processedImages.has(imageId)) {\n        continue;\n      }\n\n      const meta = imageMetadataMap[imageId];\n      const supabaseUrl = `${SUPABASE_BASE_URL}/${encodeURIComponent(meta.filename)}`;\n      \n      // Enhance alt text if it's generic or empty\n      const enhancedAltText = (\n        !altText || \n        altText === imageId || \n        ['img-0.jpeg', 'img-1.jpeg', 'img-2.jpeg'].includes(altText.trim())\n      ) ? meta.title : altText;\n\n      // Create enhanced image block with context\n      const annotationBlock = generateAnnotationBlock(meta, imageId);\n      const enhancedImageBlock = `![${enhancedAltText}](${supabaseUrl}${title ? ` \"${title}\"` : ''})${annotationBlock}`;\n\n      replacements.push({\n        original: fullMatch,\n        enhanced: enhancedImageBlock\n      });\n\n      processedImages.add(imageId);\n    }\n\n    // Apply all replacements\n    replacements.forEach(replacement => {\n      processedMarkdown = processedMarkdown.replace(replacement.original, replacement.enhanced);\n    });\n\n    return processedMarkdown;\n  }\n\n  // Step 3: Process the data structure\n  const processedArray = inputArray.map(doc => {\n    const processedDoc = { ...doc };\n\n    // Direct markdown processing\n    if (processedDoc.markdown) {\n      processedDoc.markdown = processMarkdownContent(processedDoc.markdown);\n    }\n\n    // Handle nested structures (PAGES, UPLOADED IMAGES, etc.)\n    const arrayFields = ['PAGES', 'UPLOADED IMAGES ', 'pages', 'content'];\n    \n    arrayFields.forEach(fieldName => {\n      if (Array.isArray(processedDoc[fieldName])) {\n        processedDoc[fieldName] = processedDoc[fieldName].map(item => {\n          if (item.markdown) {\n            return {\n              ...item,\n              markdown: processMarkdownContent(item.markdown)\n            };\n          }\n          return item;\n        });\n      }\n    });\n\n    return processedDoc;\n  });\n\n  // Add processing metadata\n  const result = Array.isArray(data) ? processedArray : processedArray[0];\n  \n  if (typeof result === 'object') {\n    result._imageProcessing = {\n      processedAt: new Date().toISOString(),\n      imagesFound: Object.keys(imageMetadataMap).length,\n      supabaseBaseUrl: SUPABASE_BASE_URL\n    };\n  }\n\n  return { json: result };\n\n} catch (error) {\n  console.error('Enhanced image processing error:', error);\n  console.error('Error details:', {\n    message: error.message,\n    stack: error.stack\n  });\n  \n  return { \n    json: {\n      ...(item.json || item),\n      _processingError: {\n        message: error.message,\n        timestamp: new Date().toISOString()\n      }\n    }\n  };\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5488,
+        1568
+      ],
+      "id": "07827a34-0220-4182-9079-50c5c838fb97",
+      "name": "Code5",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "markdown",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        5936,
+        1568
+      ],
+      "id": "bc471e61-77d7-41a4-8439-0d2e4834e02e",
+      "name": "Split Out3"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and combine all markdown content into one text\nlet combinedText = '';\n\nfor (const item of $input.all()) {\n  if (item.json.markdown) {\n    combinedText += item.json.markdown + '\\n\\n';\n  }\n}\n\n// Remove trailing newlines\ncombinedText = combinedText.trim();\n\nreturn [{ json: { combinedMarkdown: combinedText } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6560,
+        1392
+      ],
+      "id": "bc15657f-4433-416d-8a86-d8c437c6360b",
+      "name": "Code6"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2cf07d7e-a4f6-4a90-b1ca-64dc10531137",
+              "name": "data",
+              "value": "={{ $json.combinedMarkdown }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        6912,
+        1392
+      ],
+      "id": "5fe63aec-b997-40f3-a0e6-4c68bdced080",
+      "name": "Name Consistency"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the images array from the input data\nconst images = $input.first().json.images;\n\n// Check if images array exists and is not empty\nconst isEmpty = !images || !Array.isArray(images) || images.length === 0;\n\n// Return the result\nreturn {\n  json: {\n    imagesEmpty: isEmpty,\n    imagesCount: images ? images.length : 0\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        592,
+        1184
+      ],
+      "id": "e4d0b033-96eb-408b-87f0-b7bdcb15f990",
+      "name": "CHECK IF THERE IS NO IMAGES"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1754b9be-987a-46a7-88d1-c4dd26018532",
+              "leftValue": "={{ $json.data[0].imagesEmpty }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1360,
+        1456
+      ],
+      "id": "da2ba8e8-741c-4d63-a063-b433bb947cb1",
+      "name": "If",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        880,
+        1456
+      ],
+      "id": "933f38b5-ff7b-47e4-9339-bf3669b938cc",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1088,
+        1456
+      ],
+      "id": "960e1e1d-a9e8-4733-9b9b-dfd2a37c7221",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "images",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1456,
+        1824
+      ],
+      "id": "af663348-ac10-4b59-90ec-d4d2c063bd30",
+      "name": "IMAGES"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "advanced": true,
+        "mergeByFields": {
+          "values": [
+            {
+              "field1": "images[0].id",
+              "field2": "id"
+            }
+          ]
+        },
+        "joinMode": "enrichInput1",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        5136,
+        1568
+      ],
+      "id": "8918e064-1a4b-4eef-9a5b-3e562f32fecd",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        1824
+      ],
+      "id": "41810073-15bc-45a3-9334-165e5dd56fa4",
+      "name": "Split Out1",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "include": "specifiedFields",
+        "fieldsToInclude": "markdown",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        2048,
+        1440
+      ],
+      "id": "2b61dccc-669b-4957-a770-d35c981cb535",
+      "name": "Aggregate1"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1664,
+        1440
+      ],
+      "id": "3a23da7d-6366-4986-9c7a-4c570a6b6bd0",
+      "name": "Split Out",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        5936,
+        1392
+      ],
+      "id": "c2f99a1c-48ea-4545-b0e7-36cd95460523",
+      "name": "Split Out2"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "DOC_ID": "1wHLjtFGpokJEk74O2rZZPlT5YCenjsWH"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "DOWNLOAD THE CURRENT DOC 1": {
+      "main": [
+        [
+          {
+            "node": "UPLOAD FILE TO MISTERAL ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UPLOAD FILE TO MISTERAL ": {
+      "main": [
+        [
+          {
+            "node": "GET SIGNED URL ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET SIGNED URL ": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "EXTRACT THE PAGES 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET THE IMAGE BASE 64 PART": {
+      "main": [
+        [
+          {
+            "node": "CONVERT TO BINARY ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CONVERT TO BINARY ": {
+      "main": [
+        [
+          {
+            "node": "SAVE ALL THE  IMAGES IN SUPABASE  BUCKET STORAGE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "EXTRACT THE PAGES 1": {
+      "main": [
+        [
+          {
+            "node": "CHECK IF THERE IS NO IMAGES",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET SUPABASE STORAGE FILE TITLE": {
+      "main": [
+        [
+          {
+            "node": "GET THE IMAGE BASE 64 PART",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SAVE ALL THE  IMAGES IN SUPABASE  BUCKET STORAGE": {
+      "main": [
+        [
+          {
+            "node": "EXTRACT TITLE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "EXTRACT TITLE": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain2": {
+      "main": [
+        [
+          {
+            "node": "GET SUPABASE STORAGE FILE TITLE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge2": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Code5": {
+      "main": [
+        [
+          {
+            "node": "Split Out3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out3": {
+      "main": [
+        [
+          {
+            "node": "Code6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code6": {
+      "main": [
+        [
+          {
+            "node": "Name Consistency",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "DOWNLOAD THE CURRENT DOC 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Name Consistency": {
+      "main": [
+        []
+      ]
+    },
+    "CHECK IF THERE IS NO IMAGES": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Split Out1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IMAGES": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Code5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out1": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IMAGES",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate1": {
+      "main": [
+        [
+          {
+            "node": "Split Out2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Aggregate1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out2": {
+      "main": [
+        [
+          {
+            "node": "Code6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "cf63be9d-063d-4b3b-8058-8050d8333b5b",
+  "meta": {
+    "instanceId": "18bbd58243fd5f2012d589a65b66bb280d57775b60d57fd0ae51837c3241d395"
+  },
+  "id": "BkkMXHeZDWAm7A1G",
+  "tags": []
+}

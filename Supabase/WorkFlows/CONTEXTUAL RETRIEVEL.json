@@ -1,0 +1,546 @@
+{
+  "name": "CONTEXTUAL RETRIEVEL",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "CONTENT"
+            },
+            {
+              "name": "FILE_ID"
+            },
+            {
+              "name": "DEPARTEMENT"
+            },
+            {
+              "name": "FILE_DATE"
+            }
+          ]
+        }
+      },
+      "id": "c055762a-8fe7-4141-a639-df2372f30060",
+      "typeVersion": 1.1,
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -1280,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=<document> \n{{ $('When Executed by Another Workflow').item.json.CONTENT }}\n</document> \nHere is the chunk we want to situate within the whole document \n<chunk> \n{{ $('Loop Over Items1').item.json.content }}\n</chunk> \nPlease give a short succinct context to situate this chunk within the overall document for the purposes of improving search retrieval of the chunk. Answer only with the succinct context and nothing else. ",
+              "role": "system"
+            }
+          ]
+        },
+        "simplify": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -400,
+        48
+      ],
+      "id": "5c27c3b6-e1f6-4e6b-849e-7f04880b5122",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "s8ggF15OFQuWfBtf",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// N8N Node: Recursive Character Splitter for Markdown\n// This node takes markdown content and splits it recursively by characters\n\nconst items = $input.first().json;\nconst content = items.CONTENT;\n\n// Configuration options\nconst MAX_CHUNK_SIZE = 1000; // Maximum characters per chunk\nconst CHUNK_OVERLAP = 100;   // Overlap between chunks\nconst SEPARATORS = ['\\n\\n', '\\n', ' ', ''];  // Hierarchy of separators\n\nfunction recursiveCharacterSplit(text, separators, maxSize, overlap) {\n    // Base case: if text is small enough, return as single chunk\n    if (text.length <= maxSize) {\n        return [text.trim()];\n    }\n    \n    // Try each separator in order\n    for (let separator of separators) {\n        if (text.includes(separator)) {\n            const splits = text.split(separator);\n            const chunks = [];\n            let currentChunk = '';\n            \n            for (let i = 0; i < splits.length; i++) {\n                const split = splits[i];\n                const testChunk = currentChunk + (currentChunk ? separator : '') + split;\n                \n                if (testChunk.length <= maxSize) {\n                    // Add to current chunk\n                    currentChunk = testChunk;\n                } else {\n                    // Current chunk is full, start new one\n                    if (currentChunk) {\n                        chunks.push(currentChunk.trim());\n                    }\n                    \n                    // If single split is too large, recursively split it\n                    if (split.length > maxSize) {\n                        const subChunks = recursiveCharacterSplit(\n                            split, \n                            separators.slice(1), \n                            maxSize, \n                            overlap\n                        );\n                        chunks.push(...subChunks);\n                        currentChunk = '';\n                    } else {\n                        currentChunk = split;\n                    }\n                }\n            }\n            \n            // Add remaining chunk\n            if (currentChunk.trim()) {\n                chunks.push(currentChunk.trim());\n            }\n            \n            // Add overlap between chunks\n            return addOverlap(chunks, overlap);\n        }\n    }\n    \n    // Fallback: split by character count\n    return splitByCharacterCount(text, maxSize, overlap);\n}\n\nfunction addOverlap(chunks, overlapSize) {\n    if (chunks.length <= 1 || overlapSize === 0) {\n        return chunks;\n    }\n    \n    const overlappedChunks = [chunks[0]];\n    \n    for (let i = 1; i < chunks.length; i++) {\n        const prevChunk = chunks[i - 1];\n        const currentChunk = chunks[i];\n        \n        // Get overlap from previous chunk\n        const overlapText = prevChunk.slice(-overlapSize);\n        \n        // Combine overlap with current chunk\n        const combinedChunk = overlapText + ' ' + currentChunk;\n        overlappedChunks.push(combinedChunk.trim());\n    }\n    \n    return overlappedChunks;\n}\n\nfunction splitByCharacterCount(text, maxSize, overlap) {\n    const chunks = [];\n    let start = 0;\n    \n    while (start < text.length) {\n        let end = Math.min(start + maxSize, text.length);\n        \n        // Try to break at word boundary\n        if (end < text.length) {\n            const lastSpace = text.lastIndexOf(' ', end);\n            if (lastSpace > start) {\n                end = lastSpace;\n            }\n        }\n        \n        chunks.push(text.slice(start, end).trim());\n        start = end - overlap;\n        \n        // Prevent infinite loop\n        if (start >= end - overlap) {\n            start = end;\n        }\n    }\n    \n    return chunks.filter(chunk => chunk.length > 0);\n}\n\n// Extract metadata from markdown\nfunction extractMetadata(chunk, index, total) {\n    const lines = chunk.split('\\n');\n    const headers = lines.filter(line => line.trim().startsWith('#'));\n    const wordCount = chunk.split(/\\s+/).length;\n    const charCount = chunk.length;\n    \n    return {\n        chunkIndex: index,\n        totalChunks: total,\n        characterCount: charCount,\n        wordCount: wordCount,\n        headers: headers.map(h => h.trim()),\n        hasCodeBlocks: chunk.includes('```'),\n        hasTables: chunk.includes('|'),\n        hasLinks: /\\[.*\\]\\(.*\\)/.test(chunk)\n    };\n}\n\n// Main processing\ntry {\n    if (!content || typeof content !== 'string') {\n        throw new Error('CONTENT field must be a non-empty string');\n    }\n    \n    // Perform recursive character splitting\n    const chunks = recursiveCharacterSplit(content, SEPARATORS, MAX_CHUNK_SIZE, CHUNK_OVERLAP);\n    \n    // Create output items with metadata\n    const outputItems = chunks.map((chunk, index) => ({\n        json: {\n            content: chunk,\n            metadata: extractMetadata(chunk, index + 1, chunks.length),\n            originalLength: content.length,\n            chunkLength: chunk.length,\n            splitMethod: 'recursive_character',\n            timestamp: new Date().toISOString()\n        }\n    }));\n    \n    return outputItems;\n    \n} catch (error) {\n    // Return error information\n    return [{\n        json: {\n            error: true,\n            message: error.message,\n            originalContent: content || 'No content provided',\n            timestamp: new Date().toISOString()\n        }\n    }];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -976,
+        32
+      ],
+      "id": "34f63a8a-a513-4d7a-84d2-97bed19316d9",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "options": {
+          "reset": false
+        }
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -704,
+        32
+      ],
+      "id": "eef89652-faba-46bd-835e-3247958c21cb",
+      "name": "Loop Over Items1",
+      "alwaysOutputData": true,
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "content": "## Contextual Retrieving \n",
+        "height": 400,
+        "width": 2448
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -992,
+        -128
+      ],
+      "typeVersion": 1,
+      "id": "75229974-86cf-4795-a2b7-ecbae84027df",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "tableId": "token_tracker",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "prompt_tokens",
+              "fieldValue": "={{ $('Message a model').first().json.usage.prompt_tokens }}"
+            },
+            {
+              "fieldId": "completion_tokens",
+              "fieldValue": "={{ $('Message a model').first().json.usage.completion_tokens }}"
+            },
+            {
+              "fieldId": "total_tokens",
+              "fieldValue": "={{ $('Message a model').first().json.usage.total_tokens }}"
+            },
+            {
+              "fieldId": "provided_content",
+              "fieldValue": "={{ $('Loop Over Items1').item.json.content}}"
+            },
+            {
+              "fieldId": "ai_response",
+              "fieldValue": "={{ $('Message a model').first().json.choices[0].message.content }}"
+            },
+            {
+              "fieldId": "file_id",
+              "fieldValue": "={{ $('When Executed by Another Workflow').item.json.FILE_ID }}"
+            },
+            {
+              "fieldId": "enhanced_chunk",
+              "fieldValue": "={{ $('Enhance Content').item.json['content '] }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        672,
+        48
+      ],
+      "id": "8aff8616-ba38-4e17-b562-102e5f738e98",
+      "name": "Add Raw To  The Tracker Table",
+      "credentials": {
+        "supabaseApi": {
+          "id": "F11Pn5ORjMbpDP63",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n    file_id,\n    SUM(prompt_tokens) AS total_prompt_tokens,\n    SUM(completion_tokens) AS total_completion_tokens,\n    SUM(total_tokens) AS total_tokens_consumed\nFROM token_tracker\nWHERE created_at >= NOW() - INTERVAL '1 minute'\nGROUP BY file_id\nHAVING SUM(total_tokens) < (0.7 * 200000);\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        848,
+        48
+      ],
+      "id": "03b2c316-65fe-4340-b19d-4574c706cd5b",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "m1UUBkHDDbDfNWrB",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "81d48bac-6361-4245-b738-f8886d2b516e",
+              "leftValue": "={{ $json.isEmpty() }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1104,
+        48
+      ],
+      "id": "014abde9-a67b-42b2-be4c-503a71250268",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "amount": 60
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1280,
+        32
+      ],
+      "id": "a6d94553-f38c-42c4-9497-633f4cfaa4df",
+      "name": "Wait",
+      "webhookId": "30d30a3f-efed-4b9e-819b-4fc0ed72dc92"
+    },
+    {
+      "parameters": {
+        "model": "text-embedding-3-small",
+        "options": {}
+      },
+      "id": "11d29b0f-6715-4c55-9c87-ab0376a2f40c",
+      "name": "Embeddings OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1,
+      "position": [
+        368,
+        288
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "s8ggF15OFQuWfBtf",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chunkSize": 100000,
+        "options": {
+          "splitCode": "markdown"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        336,
+        640
+      ],
+      "id": "2b903e05-3889-4012-862a-da36d9f62487",
+      "name": "Recursive Character Text Splitter1"
+    },
+    {
+      "parameters": {
+        "jsonMode": "expressionData",
+        "jsonData": "={{$('Enhance Content').item.json['content ']}}",
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "file_id",
+                "value": "={{ $('When Executed by Another Workflow').item.json.FILE_ID }}"
+              },
+              {
+                "name": "department",
+                "value": "={{ $('When Executed by Another Workflow').item.json.DEPARTEMENT }}"
+              },
+              {
+                "name": "file_date",
+                "value": "={{ $('When Executed by Another Workflow').item.json.FILE_DATE }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "e665fc67-ddbe-4fef-b00c-766cec15a3b8",
+      "name": "Default Data Loader",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1,
+      "position": [
+        336,
+        448
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {
+          "queryName": "search_similar_documents"
+        }
+      },
+      "id": "5de811c1-dc59-4971-bdc8-f6a87c9b3006",
+      "name": "Insert into Supabase Vectorstore1",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1,
+      "position": [
+        368,
+        48
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "F11Pn5ORjMbpDP63",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7009d61d-9b60-4e8f-9154-ccdbcc3e80a9",
+              "name": "content ",
+              "value": "=#{{ $json.choices[0].message.content }} - {{$('Loop Over Items1').item.json.content}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        48
+      ],
+      "id": "df691237-f64a-4b7e-a3fe-596a353483ac",
+      "name": "Enhance Content"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        -112
+      ],
+      "id": "eab4373e-30cc-4e4e-b088-16a2696968b4",
+      "name": "Aggregate5"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "CONTENT": "# Vector Distance Methods Simple Explanation \n\n## Vector Distance Methods - Simple Explanation\n\n## Think of it like comparing people's opinions...\n\nImagine you're asking people to rate 5 movies on a scale of 1-10. Each person's ratings create a \"vector\" - like a fingerprint of their taste.\n\n## 1. Cosine Similarity\n\n\"Do we have similar taste?\"\nLike: Comparing the shape of your ratings, ignoring how generous/harsh you are\n\n## Example:\n\n- You: Movies A, B, C, D, E = [4, 8, 2, 9, 6]\n- Friend: Movies A, B, C, D, E = [2, 4, 1, 4.5, 3]\n\nCosine says: \"You both love movies B and D, hate movie C. You're similar!\" (Doesn't care that your friend rates everything lower)\n\n## Best for:\n\n- Finding documents with similar meaning\n- \"Show me articles like this one\"\n- Most Al text searches\n\n\n## 2. Euclidean Distance\n\n\"How different are our exact scores?\"\nLike: Measuring the exact difference between each rating\n\n# Example: \n\n- You: $[4,8,2,9,6]$\n- Friend: $[5,6,3,8,7]$\n\nEuclidean says: \"Movie A: 1 point different, Movie B: 2 points different...\"\n(Adds up all the exact differences)\n\n## Best for:\n\n- GPS locations (\"How far is the nearest restaurant?\")\n- Medical measurements\n- When exact numbers matter\n\n\n## 3. Inner Product\n\n## \"Do we both like popular things strongly?\"\n\nLike: Rewarding people who really love the same popular things\n\n## Example:\n\n- You: $[4,8,2,9,6]$\n- Movie buff: $[8,10,4,10,9]$\n\nInner Product says: \"You both REALLY love movies B and D. Movie buff is perfect for you!\"\n(Gives extra points for loving popular/highly-rated things)\n\n## Best for:\n\n- Shopping recommendations (\"People who buy a lot AND like similar things\")\n- \"Show me popular items similar to what I like\"\n\n\n## Real-World Examples\n\n## Netflix Recommendations:\n\nCosine: \"Find people with similar taste\" (ignores binge-watchers vs casual viewers)\n\nEuclidean: \"Find people who rate exactly like you\" (5-star vs 4-star matters)\n\nInner Product: \"Find popular shows that people with your taste really love\"\n\n# Google Search: \n\nCosine: \"Find documents about similar topics\" (Most common)\nEuclidean: \"Find documents with similar word counts and structure\"\nInner Product: \"Find popular documents about similar topics\"\n\n## Which Should You Use?\n\n## $95 \\%$ of the time: Cosine\n\n- Searching documents\n- Finding similar content\n- Al chatbots\n- \"Find things like this\"\n\n\n## For locations/measurements: Euclidean\n\n- Maps and GPS\n- Scientific data\n- When exact amounts matter\n\n\n## For popularity-based: Inner Product\n\n- Shopping recommendations\n- \"Trending similar items\"\n- When you want popular results\n\n\n## The Bottom Line\n\nIf you're working with text, documents, or Al language models $\\rightarrow$ Use Cosine\nThink of Cosine as \"similarity of meaning\" - it's what Google, ChatGPT, and most Al systems use to understand if two pieces of text are about the same thing.\n\nThe others are for special cases where exact numbers (Euclidean) or popularity (Inner Product) matter more than just \"similar meaning.\"\n\n# Best Choice: Cosine Distance ( $<=$ ) \n\nThe documentation clearly states that cosine distance is the \"safe default\" when you don't know if your embeddings are normalized.\n\n## Performance Optimization: Inner Product ( <\\#>) for OpenAI\n\nHowever, since you're using OpenAI embeddings ( 1536 dimensions), the documentation specifically mentions:\n\"If you know for a fact that they are normalized (for example, your embedding is returned from OpenAI), you can use negative inner product (<\\#>) for better performance\"\n\nOpenAI embeddings ARE normalized, so you should use Inner Product for the best performance.\n\n## My Recommendation for Your Use Case:\n\nUse Version 2: Negative Inner Product from the code I provided earlier, because:\n\n1. OpenAI embeddings are normalized (confirmed by Supabase docs)\n2. Better performance than cosine distance\n3. Same semantic results as cosine when vectors are normalized\n4. Recommended by Supabase for OpenAI embeddings specifically\n\n## Updated Function Based on Supabase Best Practices:\n\n```\n`CREATE OR REPLACE FUNCTION find_similar_vector(\n    query_embedding VECTOR(1536),\n    match_threshold FLOAT DEFAULT 0.78,\n    match_count INT DEFAULT 10\n```\n\n)\nRETURNS TABLE (\nid BIGINT,\ncontent TEXT,\nmetadata JSONB,\nsimilarity FLOAT\n)\nLANGUAGE plpgsql AS \\$\\$\nBEGIN\nRETURN QUERY\nSELECT\nvector_store_table.id,\nvector_store_table.content,\nvector_store_table.metadata,\n-(vector_store_table.embedding <*#> query_embedding) AS similarity *\n\nFROM vector_store_table\nWHERE vector_store_table.embedding <*#> query_embedding < -match\n_threshold*\nORDER BY vector_store_table.embedding <*#> query_embedding ASC*\nLIMIT LEAST(match_count, 200);\nEND;\n\\$\\$; $\\square$\n\nBottom line: Use Inner Product ( $* * *$ ) with the vector_lp_ops index for your OpenAI embeddings - it's faster and recommended by Supabase for your specific use case.",
+          "FILE_ID": "1n7TG-vS96pfxEl395Tg0y-hsMGT_JXXp",
+          "DEPARTEMENT": "IT",
+          "FILE_DATE": "N/A"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Enhance Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [
+          {
+            "node": "Aggregate5",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Raw To  The Tracker Table": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Insert into Supabase Vectorstore1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter1": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Insert into Supabase Vectorstore1",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert into Supabase Vectorstore1": {
+      "main": [
+        [
+          {
+            "node": "Add Raw To  The Tracker Table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enhance Content": {
+      "main": [
+        [
+          {
+            "node": "Insert into Supabase Vectorstore1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e0d8fe4f-b279-46ae-be21-43478c44d68c",
+  "meta": {
+    "instanceId": "18bbd58243fd5f2012d589a65b66bb280d57775b60d57fd0ae51837c3241d395"
+  },
+  "id": "I4eiMJJLhSyRhKBd",
+  "tags": []
+}
