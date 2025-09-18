@@ -1,5 +1,4 @@
 {
-  "name": "CONTEXTUAL RETRIEVEL",
   "nodes": [
     {
       "parameters": {
@@ -20,13 +19,13 @@
           ]
         }
       },
-      "id": "c055762a-8fe7-4141-a639-df2372f30060",
+      "id": "c0b05cba-b05d-449a-b89b-53561bfe2ab3",
       "typeVersion": 1.1,
       "name": "When Executed by Another Workflow",
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "position": [
-        -1280,
-        32
+        -688,
+        16
       ]
     },
     {
@@ -51,14 +50,14 @@
       "type": "@n8n/n8n-nodes-langchain.openAi",
       "typeVersion": 1.8,
       "position": [
-        -400,
-        48
+        192,
+        32
       ],
-      "id": "5c27c3b6-e1f6-4e6b-849e-7f04880b5122",
+      "id": "78c3e10f-275d-48c9-8077-a4f0e0eaa823",
       "name": "Message a model",
       "credentials": {
         "openAiApi": {
-          "id": "s8ggF15OFQuWfBtf",
+          "id": "vrHWcPEuUUThOh1t",
           "name": "OpenAi account"
         }
       }
@@ -70,10 +69,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -976,
-        32
+        -384,
+        16
       ],
-      "id": "34f63a8a-a513-4d7a-84d2-97bed19316d9",
+      "id": "70472902-611c-456d-be3d-d7b3db5033e7",
       "name": "Code1"
     },
     {
@@ -85,10 +84,10 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        -704,
-        32
+        -112,
+        16
       ],
-      "id": "eef89652-faba-46bd-835e-3247958c21cb",
+      "id": "61383e07-69a6-4a4c-b181-7feef499dc24",
       "name": "Loop Over Items1",
       "alwaysOutputData": true,
       "executeOnce": false
@@ -97,15 +96,15 @@
       "parameters": {
         "content": "## Contextual Retrieving \n",
         "height": 400,
-        "width": 2448
+        "width": 2816
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        -992,
-        -128
+        -768,
+        -144
       ],
       "typeVersion": 1,
-      "id": "75229974-86cf-4795-a2b7-ecbae84027df",
+      "id": "4a23eaaa-9444-44be-9502-a90f58169068",
       "name": "Sticky Note5"
     },
     {
@@ -147,15 +146,15 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        672,
-        48
+        1264,
+        32
       ],
-      "id": "8aff8616-ba38-4e17-b562-102e5f738e98",
+      "id": "f2efa225-ec48-4c05-857f-23aae08e78e4",
       "name": "Add Raw To  The Tracker Table",
       "credentials": {
         "supabaseApi": {
-          "id": "F11Pn5ORjMbpDP63",
-          "name": "Supabase account"
+          "id": "3cRXAQK1eN8QzIzJ",
+          "name": "LOCAL SUPABASE V"
         }
       }
     },
@@ -168,15 +167,15 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        848,
-        48
+        1440,
+        32
       ],
-      "id": "03b2c316-65fe-4340-b19d-4574c706cd5b",
+      "id": "a38e7923-5a7c-479c-b5a9-93fdcdfafed6",
       "name": "Execute a SQL query",
       "credentials": {
         "postgres": {
-          "id": "m1UUBkHDDbDfNWrB",
-          "name": "Postgres account 2"
+          "id": "TbDxKkVCtZI8qcev",
+          "name": "LOCAL POSTGRES  Credentials"
         }
       }
     },
@@ -208,10 +207,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1104,
-        48
+        1696,
+        32
       ],
-      "id": "014abde9-a67b-42b2-be4c-503a71250268",
+      "id": "53819da1-4607-46c4-99e6-ca33cb795119",
       "name": "If2"
     },
     {
@@ -221,32 +220,12 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        1280,
-        32
+        1872,
+        16
       ],
-      "id": "a6d94553-f38c-42c4-9497-633f4cfaa4df",
+      "id": "65653657-68c0-4cba-9b89-8a12d6be52df",
       "name": "Wait",
       "webhookId": "30d30a3f-efed-4b9e-819b-4fc0ed72dc92"
-    },
-    {
-      "parameters": {
-        "model": "text-embedding-3-small",
-        "options": {}
-      },
-      "id": "11d29b0f-6715-4c55-9c87-ab0376a2f40c",
-      "name": "Embeddings OpenAI",
-      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
-      "typeVersion": 1,
-      "position": [
-        368,
-        288
-      ],
-      "credentials": {
-        "openAiApi": {
-          "id": "s8ggF15OFQuWfBtf",
-          "name": "OpenAi account"
-        }
-      }
     },
     {
       "parameters": {
@@ -258,10 +237,10 @@
       "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
       "typeVersion": 1,
       "position": [
-        336,
-        640
+        912,
+        624
       ],
-      "id": "2b903e05-3889-4012-862a-da36d9f62487",
+      "id": "284cfe1c-894f-46ed-a41c-fe0dad457d7e",
       "name": "Recursive Character Text Splitter1"
     },
     {
@@ -287,13 +266,13 @@
           }
         }
       },
-      "id": "e665fc67-ddbe-4fef-b00c-766cec15a3b8",
+      "id": "59878bb1-c7e2-435b-a404-672530a9bfc4",
       "name": "Default Data Loader",
       "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
       "typeVersion": 1,
       "position": [
-        336,
-        448
+        912,
+        432
       ]
     },
     {
@@ -309,18 +288,18 @@
           "queryName": "search_similar_documents"
         }
       },
-      "id": "5de811c1-dc59-4971-bdc8-f6a87c9b3006",
+      "id": "e7fec373-13d7-4e9c-a445-ef533b55631e",
       "name": "Insert into Supabase Vectorstore1",
       "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
       "typeVersion": 1,
       "position": [
-        368,
-        48
+        944,
+        32
       ],
       "credentials": {
         "supabaseApi": {
-          "id": "F11Pn5ORjMbpDP63",
-          "name": "Supabase account"
+          "id": "3cRXAQK1eN8QzIzJ",
+          "name": "LOCAL SUPABASE V"
         }
       }
     },
@@ -341,10 +320,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        0,
-        48
+        592,
+        32
       ],
-      "id": "df691237-f64a-4b7e-a3fe-596a353483ac",
+      "id": "369f3053-b032-4273-b237-ffb61dd624c6",
       "name": "Enhance Content"
     },
     {
@@ -355,25 +334,32 @@
       "type": "n8n-nodes-base.aggregate",
       "typeVersion": 1,
       "position": [
-        -336,
-        -112
+        256,
+        -128
       ],
-      "id": "eab4373e-30cc-4e4e-b088-16a2696968b4",
+      "id": "8d7e7d24-a7b3-4c22-8f5f-6b02a8805287",
       "name": "Aggregate5"
-    }
-  ],
-  "pinData": {
-    "When Executed by Another Workflow": [
-      {
-        "json": {
-          "CONTENT": "# Vector Distance Methods Simple Explanation \n\n## Vector Distance Methods - Simple Explanation\n\n## Think of it like comparing people's opinions...\n\nImagine you're asking people to rate 5 movies on a scale of 1-10. Each person's ratings create a \"vector\" - like a fingerprint of their taste.\n\n## 1. Cosine Similarity\n\n\"Do we have similar taste?\"\nLike: Comparing the shape of your ratings, ignoring how generous/harsh you are\n\n## Example:\n\n- You: Movies A, B, C, D, E = [4, 8, 2, 9, 6]\n- Friend: Movies A, B, C, D, E = [2, 4, 1, 4.5, 3]\n\nCosine says: \"You both love movies B and D, hate movie C. You're similar!\" (Doesn't care that your friend rates everything lower)\n\n## Best for:\n\n- Finding documents with similar meaning\n- \"Show me articles like this one\"\n- Most Al text searches\n\n\n## 2. Euclidean Distance\n\n\"How different are our exact scores?\"\nLike: Measuring the exact difference between each rating\n\n# Example: \n\n- You: $[4,8,2,9,6]$\n- Friend: $[5,6,3,8,7]$\n\nEuclidean says: \"Movie A: 1 point different, Movie B: 2 points different...\"\n(Adds up all the exact differences)\n\n## Best for:\n\n- GPS locations (\"How far is the nearest restaurant?\")\n- Medical measurements\n- When exact numbers matter\n\n\n## 3. Inner Product\n\n## \"Do we both like popular things strongly?\"\n\nLike: Rewarding people who really love the same popular things\n\n## Example:\n\n- You: $[4,8,2,9,6]$\n- Movie buff: $[8,10,4,10,9]$\n\nInner Product says: \"You both REALLY love movies B and D. Movie buff is perfect for you!\"\n(Gives extra points for loving popular/highly-rated things)\n\n## Best for:\n\n- Shopping recommendations (\"People who buy a lot AND like similar things\")\n- \"Show me popular items similar to what I like\"\n\n\n## Real-World Examples\n\n## Netflix Recommendations:\n\nCosine: \"Find people with similar taste\" (ignores binge-watchers vs casual viewers)\n\nEuclidean: \"Find people who rate exactly like you\" (5-star vs 4-star matters)\n\nInner Product: \"Find popular shows that people with your taste really love\"\n\n# Google Search: \n\nCosine: \"Find documents about similar topics\" (Most common)\nEuclidean: \"Find documents with similar word counts and structure\"\nInner Product: \"Find popular documents about similar topics\"\n\n## Which Should You Use?\n\n## $95 \\%$ of the time: Cosine\n\n- Searching documents\n- Finding similar content\n- Al chatbots\n- \"Find things like this\"\n\n\n## For locations/measurements: Euclidean\n\n- Maps and GPS\n- Scientific data\n- When exact amounts matter\n\n\n## For popularity-based: Inner Product\n\n- Shopping recommendations\n- \"Trending similar items\"\n- When you want popular results\n\n\n## The Bottom Line\n\nIf you're working with text, documents, or Al language models $\\rightarrow$ Use Cosine\nThink of Cosine as \"similarity of meaning\" - it's what Google, ChatGPT, and most Al systems use to understand if two pieces of text are about the same thing.\n\nThe others are for special cases where exact numbers (Euclidean) or popularity (Inner Product) matter more than just \"similar meaning.\"\n\n# Best Choice: Cosine Distance ( $<=$ ) \n\nThe documentation clearly states that cosine distance is the \"safe default\" when you don't know if your embeddings are normalized.\n\n## Performance Optimization: Inner Product ( <\\#>) for OpenAI\n\nHowever, since you're using OpenAI embeddings ( 1536 dimensions), the documentation specifically mentions:\n\"If you know for a fact that they are normalized (for example, your embedding is returned from OpenAI), you can use negative inner product (<\\#>) for better performance\"\n\nOpenAI embeddings ARE normalized, so you should use Inner Product for the best performance.\n\n## My Recommendation for Your Use Case:\n\nUse Version 2: Negative Inner Product from the code I provided earlier, because:\n\n1. OpenAI embeddings are normalized (confirmed by Supabase docs)\n2. Better performance than cosine distance\n3. Same semantic results as cosine when vectors are normalized\n4. Recommended by Supabase for OpenAI embeddings specifically\n\n## Updated Function Based on Supabase Best Practices:\n\n```\n`CREATE OR REPLACE FUNCTION find_similar_vector(\n    query_embedding VECTOR(1536),\n    match_threshold FLOAT DEFAULT 0.78,\n    match_count INT DEFAULT 10\n```\n\n)\nRETURNS TABLE (\nid BIGINT,\ncontent TEXT,\nmetadata JSONB,\nsimilarity FLOAT\n)\nLANGUAGE plpgsql AS \\$\\$\nBEGIN\nRETURN QUERY\nSELECT\nvector_store_table.id,\nvector_store_table.content,\nvector_store_table.metadata,\n-(vector_store_table.embedding <*#> query_embedding) AS similarity *\n\nFROM vector_store_table\nWHERE vector_store_table.embedding <*#> query_embedding < -match\n_threshold*\nORDER BY vector_store_table.embedding <*#> query_embedding ASC*\nLIMIT LEAST(match_count, 200);\nEND;\n\\$\\$; $\\square$\n\nBottom line: Use Inner Product ( $* * *$ ) with the vector_lp_ops index for your OpenAI embeddings - it's faster and recommended by Supabase for your specific use case.",
-          "FILE_ID": "1n7TG-vS96pfxEl395Tg0y-hsMGT_JXXp",
-          "DEPARTEMENT": "IT",
-          "FILE_DATE": "N/A"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        944,
+        256
+      ],
+      "id": "db9632d0-94e5-4b98-aae7-af48a69ed45e",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "vrHWcPEuUUThOh1t",
+          "name": "OpenAi account"
         }
       }
-    ]
-  },
+    }
+  ],
   "connections": {
     "When Executed by Another Workflow": {
       "main": [
@@ -477,17 +463,6 @@
         ]
       ]
     },
-    "Embeddings OpenAI": {
-      "ai_embedding": [
-        [
-          {
-            "node": "Insert into Supabase Vectorstore1",
-            "type": "ai_embedding",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Recursive Character Text Splitter1": {
       "ai_textSplitter": [
         [
@@ -531,16 +506,31 @@
           }
         ]
       ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Insert into Supabase Vectorstore1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "active": false,
-  "settings": {
-    "executionOrder": "v1"
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "CONTENT": "# Vector Distance Methods Simple Explanation \n\n## Vector Distance Methods - Simple Explanation\n\n## Think of it like comparing people's opinions...\n\nImagine you're asking people to rate 5 movies on a scale of 1-10. Each person's ratings create a \"vector\" - like a fingerprint of their taste.\n\n## 1. Cosine Similarity\n\n\"Do we have similar taste?\"\nLike: Comparing the shape of your ratings, ignoring how generous/harsh you are\n\n## Example:\n\n- You: Movies A, B, C, D, E = [4, 8, 2, 9, 6]\n- Friend: Movies A, B, C, D, E = [2, 4, 1, 4.5, 3]\n\nCosine says: \"You both love movies B and D, hate movie C. You're similar!\" (Doesn't care that your friend rates everything lower)\n\n## Best for:\n\n- Finding documents with similar meaning\n- \"Show me articles like this one\"\n- Most Al text searches\n\n\n## 2. Euclidean Distance\n\n\"How different are our exact scores?\"\nLike: Measuring the exact difference between each rating\n\n# Example: \n\n- You: $[4,8,2,9,6]$\n- Friend: $[5,6,3,8,7]$\n\nEuclidean says: \"Movie A: 1 point different, Movie B: 2 points different...\"\n(Adds up all the exact differences)\n\n## Best for:\n\n- GPS locations (\"How far is the nearest restaurant?\")\n- Medical measurements\n- When exact numbers matter\n\n\n## 3. Inner Product\n\n## \"Do we both like popular things strongly?\"\n\nLike: Rewarding people who really love the same popular things\n\n## Example:\n\n- You: $[4,8,2,9,6]$\n- Movie buff: $[8,10,4,10,9]$\n\nInner Product says: \"You both REALLY love movies B and D. Movie buff is perfect for you!\"\n(Gives extra points for loving popular/highly-rated things)\n\n## Best for:\n\n- Shopping recommendations (\"People who buy a lot AND like similar things\")\n- \"Show me popular items similar to what I like\"\n\n\n## Real-World Examples\n\n## Netflix Recommendations:\n\nCosine: \"Find people with similar taste\" (ignores binge-watchers vs casual viewers)\n\nEuclidean: \"Find people who rate exactly like you\" (5-star vs 4-star matters)\n\nInner Product: \"Find popular shows that people with your taste really love\"\n\n# Google Search: \n\nCosine: \"Find documents about similar topics\" (Most common)\nEuclidean: \"Find documents with similar word counts and structure\"\nInner Product: \"Find popular documents about similar topics\"\n\n## Which Should You Use?\n\n## $95 \\%$ of the time: Cosine\n\n- Searching documents\n- Finding similar content\n- Al chatbots\n- \"Find things like this\"\n\n\n## For locations/measurements: Euclidean\n\n- Maps and GPS\n- Scientific data\n- When exact amounts matter\n\n\n## For popularity-based: Inner Product\n\n- Shopping recommendations\n- \"Trending similar items\"\n- When you want popular results\n\n\n## The Bottom Line\n\nIf you're working with text, documents, or Al language models $\\rightarrow$ Use Cosine\nThink of Cosine as \"similarity of meaning\" - it's what Google, ChatGPT, and most Al systems use to understand if two pieces of text are about the same thing.\n\nThe others are for special cases where exact numbers (Euclidean) or popularity (Inner Product) matter more than just \"similar meaning.\"\n\n# Best Choice: Cosine Distance ( $<=$ ) \n\nThe documentation clearly states that cosine distance is the \"safe default\" when you don't know if your embeddings are normalized.\n\n## Performance Optimization: Inner Product ( <\\#>) for OpenAI\n\nHowever, since you're using OpenAI embeddings ( 1536 dimensions), the documentation specifically mentions:\n\"If you know for a fact that they are normalized (for example, your embedding is returned from OpenAI), you can use negative inner product (<\\#>) for better performance\"\n\nOpenAI embeddings ARE normalized, so you should use Inner Product for the best performance.\n\n## My Recommendation for Your Use Case:\n\nUse Version 2: Negative Inner Product from the code I provided earlier, because:\n\n1. OpenAI embeddings are normalized (confirmed by Supabase docs)\n2. Better performance than cosine distance\n3. Same semantic results as cosine when vectors are normalized\n4. Recommended by Supabase for OpenAI embeddings specifically\n\n## Updated Function Based on Supabase Best Practices:\n\n```\n`CREATE OR REPLACE FUNCTION find_similar_vector(\n    query_embedding VECTOR(1536),\n    match_threshold FLOAT DEFAULT 0.78,\n    match_count INT DEFAULT 10\n```\n\n)\nRETURNS TABLE (\nid BIGINT,\ncontent TEXT,\nmetadata JSONB,\nsimilarity FLOAT\n)\nLANGUAGE plpgsql AS \\$\\$\nBEGIN\nRETURN QUERY\nSELECT\nvector_store_table.id,\nvector_store_table.content,\nvector_store_table.metadata,\n-(vector_store_table.embedding <*#> query_embedding) AS similarity *\n\nFROM vector_store_table\nWHERE vector_store_table.embedding <*#> query_embedding < -match\n_threshold*\nORDER BY vector_store_table.embedding <*#> query_embedding ASC*\nLIMIT LEAST(match_count, 200);\nEND;\n\\$\\$; $\\square$\n\nBottom line: Use Inner Product ( $* * *$ ) with the vector_lp_ops index for your OpenAI embeddings - it's faster and recommended by Supabase for your specific use case.",
+        "FILE_ID": "1n7TG-vS96pfxEl395Tg0y-hsMGT_JXXp",
+        "DEPARTEMENT": "IT",
+        "FILE_DATE": "N/A"
+      }
+    ]
   },
-  "versionId": "e0d8fe4f-b279-46ae-be21-43478c44d68c",
   "meta": {
-    "instanceId": "18bbd58243fd5f2012d589a65b66bb280d57775b60d57fd0ae51837c3241d395"
-  },
-  "id": "I4eiMJJLhSyRhKBd",
-  "tags": []
+    "templateCredsSetupCompleted": true,
+    "instanceId": "764abf43019c66c51279befb0403092fc7e1beab1eff90fa2cd5f93d91d18c8a"
+  }
 }
