@@ -1,5 +1,4 @@
 {
-  "name": "INGESTION WORKFLOW",
   "nodes": [
     {
       "parameters": {
@@ -10,137 +9,11 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        -6432,
-        736
+        -5920,
+        2224
       ],
-      "id": "c018597d-7f38-469d-8952-a05ecb9e460b",
+      "id": "6a98f03c-a9b8-401f-b1a0-865716068273",
       "name": "Loop Over Items"
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "c9fdd333-7e7c-4059-ac6d-6047150b9e89",
-              "name": "CONTENT",
-              "value": "={{  $json.data  }}",
-              "type": "string"
-            },
-            {
-              "id": "04d94d72-7487-459c-a88b-92f6ab9d99fd",
-              "name": "schema",
-              "value": "={{$json.schema}}",
-              "type": "string"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        -1200,
-        352
-      ],
-      "id": "131cc999-342e-49c7-b226-49b4d19aecd9",
-      "name": "Edit Fields",
-      "retryOnFail": true,
-      "onError": "continueErrorOutput"
-    },
-    {
-      "parameters": {
-        "mode": "insert",
-        "tableName": {
-          "__rl": true,
-          "value": "documents",
-          "mode": "list",
-          "cachedResultName": "documents"
-        },
-        "options": {
-          "queryName": "search_similar_documents"
-        }
-      },
-      "id": "9a5bd908-68a1-4e0e-9c31-8f562dade423",
-      "name": "Insert into Supabase Vectorstore",
-      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
-      "typeVersion": 1,
-      "position": [
-        2048,
-        0
-      ],
-      "credentials": {
-        "supabaseApi": {
-          "id": "F11Pn5ORjMbpDP63",
-          "name": "Supabase account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "jsonMode": "expressionData",
-        "jsonData": "={{ $json['CONTENT'] }}",
-        "options": {
-          "metadata": {
-            "metadataValues": [
-              {
-                "name": "file_id",
-                "value": "={{ $('EXTRACT ONLY USEFUL  DOC METADATA ').item.json.DOC_ID }}"
-              },
-              {
-                "name": "department",
-                "value": "={{ $('Basic LLM Chain').item.json.output.department }}"
-              },
-              {
-                "name": "file_date",
-                "value": "={{ $('Basic LLM Chain').item.json.output.file_date }}"
-              }
-            ]
-          }
-        }
-      },
-      "id": "ad9e56c9-c8dc-4abc-b981-6ed33f707e96",
-      "name": "Default Data Loader1",
-      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
-      "typeVersion": 1,
-      "position": [
-        2016,
-        368
-      ]
-    },
-    {
-      "parameters": {
-        "model": "text-embedding-3-small",
-        "options": {}
-      },
-      "id": "97f482ea-0a33-41de-94bb-2f2a3aaa69b9",
-      "name": "Embeddings OpenAI1",
-      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
-      "typeVersion": 1,
-      "position": [
-        2048,
-        208
-      ],
-      "credentials": {
-        "openAiApi": {
-          "id": "s8ggF15OFQuWfBtf",
-          "name": "OpenAi account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "options": {
-          "splitCode": "markdown"
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
-      "typeVersion": 1,
-      "position": [
-        2016,
-        576
-      ],
-      "id": "f280d418-917b-49ac-9de7-59ce7c123ef1",
-      "name": "Recursive Character Text Splitter"
     },
     {
       "parameters": {
@@ -149,7 +22,7 @@
             {
               "id": "b7292cf9-abfe-47c7-9136-1c1b864fd995",
               "name": "CONTENT",
-              "value": "={{ $('Edit Fields').first().json.CONTENT }}",
+              "value": "={{ $('SET PARMETER FOR NAME CONSISTENCY').first().json.CONTENT }}",
               "type": "string"
             }
           ]
@@ -159,10 +32,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1568,
-        0
+        2112,
+        1968
       ],
-      "id": "6f0b92a7-e1b7-4635-87a9-585c3b50f176",
+      "id": "9b1962d2-60d8-4938-8e97-929513847a9f",
       "name": "GET COTENT TO FEED TO THE VECTORE TO STORE "
     },
     {
@@ -367,6 +240,31 @@
               },
               "renameOutput": true,
               "outputKey": "CSV"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d850a557-357b-46c6-9bed-ebf239f05d8d",
+                    "leftValue": "={{ [\n  \"application/x-t602\",\n  \"application/x-abiword\",\n  \"image/cgm\",\n  \"application/x-appleworks\",\n  \"application/msword\",\n  \"application/vnd.openxmlformats-officedocument.wordprocessingml.document\",\n  \"application/vnd.ms-word.document.macroEnabled.12\",\n  \"application/msword\",\n  \"application/vnd.ms-word.template.macroEnabled.12\",\n  \"application/x-hwp\",\n  \"application/vnd.apple.keynote\",\n  \"application/vnd.lotus-wordpro\",\n  \"application/x-mw\",\n  \"application/x-mcw\",\n  \"application/vnd.apple.pages\",\n  \"application/vnd.powerbuilder6\",\n  \"application/vnd.ms-powerpoint\",\n  \"application/vnd.ms-powerpoint.presentation.macroEnabled.12\",\n  \"application/vnd.openxmlformats-officedocument.presentationml.presentation\",\n  \"application/vnd.oasis.opendocument.presentation\",\n  \"application/vnd.ms-powerpoint.template.macroEnabled.12\",\n  \"application/vnd.openxmlformats-officedocument.presentationml.template\",\n  \"application/rtf\",\n  \"application/vnd.stardivision.draw\",\n  \"application/vnd.stardivision.impress\",\n  \"application/sdp\",\n  \"application/vnd.stardivision.writer\",\n  \"application/vnd.stardivision.writer-global\",\n  \"application/vnd.sun.xml.impress.template\",\n  \"application/vnd.sun.xml.impress\",\n  \"application/vnd.sun.xml.writer\",\n  \"application/vnd.sun.xml.writer.template\",\n  \"application/vnd.sun.xml.writer.global\",\n  \"text/plain\",\n  \"application/x-uof\",\n  \"application/x-uop\",\n  \"application/x-uot\",\n  \"application/vnd.stardivision.writer\",\n  \"application/vnd.wordperfect\",\n  \"application/vnd.ms-works\",\n  \"application/xml\",\n  \"application/x-abiword\",\n  \"application/epub+zip\"\n].includes($('EXTRACT ONLY USEFUL  DOC METADATA ').item.json.DOC_TYPE.trim()) }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Any Other Files Types"
             }
           ]
         },
@@ -375,10 +273,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        -5264,
-        608
+        -4576,
+        2016
       ],
-      "id": "c2f2ed66-5085-46b2-a4f1-1c442a516cdc",
+      "id": "4552df20-369a-4c2a-91e6-746dafbb2943",
       "name": "SWITCH ON FILE TYPE "
     },
     {
@@ -394,14 +292,14 @@
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
       "position": [
-        -5536,
-        864
+        -4864,
+        2416
       ],
-      "id": "d7546eb7-a2df-420f-86bb-a5ea9d1a80ff",
+      "id": "aff8db4a-0c79-4327-a320-7d17f2df743e",
       "name": "DOWNLOAD THE CURRENT DOC ",
       "credentials": {
         "googleDriveOAuth2Api": {
-          "id": "aFMaMwmaqVjQg779",
+          "id": "BaCkgQEh4aOXF4Og",
           "name": "Google Drive account"
         }
       }
@@ -413,7 +311,7 @@
             {
               "id": "9db2102a-fff5-4ba7-8591-12294c437dff",
               "name": "DOC_ID",
-              "value": "={{ $json.id ||$json.body.data[0].metadata.url }}",
+              "value": "={{ $json.id ||$json.body.data[0].metadata.url}}",
               "type": "string"
             },
             {
@@ -435,10 +333,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -6144,
-        752
+        -5648,
+        2240
       ],
-      "id": "d1793640-fcba-455c-8b11-dda0243ba447",
+      "id": "8be74ed3-f237-4bd7-8f8f-9997a572e20e",
       "name": "EXTRACT ONLY USEFUL  DOC METADATA ",
       "alwaysOutputData": false
     },
@@ -452,10 +350,10 @@
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1,
       "position": [
-        -4720,
-        240
+        -4160,
+        1536
       ],
-      "id": "7610c04a-7f62-41fb-9390-f62a9684c59b",
+      "id": "42ddb53f-2b3b-425e-b939-a2c2a003d518",
       "name": "EXTRACT CONTENT FROM PDF "
     },
     {
@@ -466,14 +364,14 @@
       "type": "n8n-nodes-base.googleDocs",
       "typeVersion": 2,
       "position": [
-        -4704,
-        448
+        -4160,
+        1760
       ],
-      "id": "956d8d95-5daa-4f41-b845-c40a1e30ac44",
+      "id": "88bc7f42-e422-43b5-9183-ea32b270d7ec",
       "name": "Get a document",
       "credentials": {
         "googleDocsOAuth2Api": {
-          "id": "9F4lnHRbilrR7lPZ",
+          "id": "YLYNbjNBTo01t9tS",
           "name": "Google Docs account"
         }
       }
@@ -505,10 +403,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        -1952,
-        336
+        -1904,
+        2112
       ],
-      "id": "a7ff912b-217f-4425-99c1-fd59cca738d4",
+      "id": "901363b8-7993-4e91-b40c-01e6ceaba32d",
       "name": "If"
     },
     {
@@ -518,10 +416,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1568,
-        176
+        -1680,
+        1968
       ],
-      "id": "854c3fdd-c562-4890-a330-091252d1c5f7",
+      "id": "2267483f-956e-405c-bf3c-6c2c46fd9508",
       "name": "CLEAN THE INPUT TEXT "
     },
     {
@@ -551,10 +449,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        -3568,
-        160
+        -3024,
+        2096
       ],
-      "id": "d9369ff1-8a00-44de-93a8-ce4c53fe5c02",
+      "id": "6d3275c9-b508-4a95-9f8a-b583795ad48a",
       "name": "If1"
     },
     {
@@ -564,10 +462,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -5632,
-        560
+        -5120,
+        2048
       ],
-      "id": "37e43932-c075-4334-93d1-637e112567d1",
+      "id": "681a6610-2dd0-48e3-a334-39e3a05c57c5",
       "name": "from base 64 to markdown"
     },
     {
@@ -579,95 +477,25 @@
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
       "position": [
-        -5440,
-        560
+        -4912,
+        2048
       ],
-      "id": "d5a9a01b-9c63-4eba-bc4d-fc2cd6a6139a",
+      "id": "cba1a98e-2aa7-41f0-9e48-95e48cbafd38",
       "name": "Convert to File"
     },
     {
       "parameters": {
-        "pollTimes": {
-          "item": [
-            {
-              "mode": "everyMinute"
-            }
-          ]
-        },
-        "triggerOn": "specificFolder",
-        "folderToWatch": {
-          "__rl": true,
-          "value": "1Cz1D0PMfhn5_UOiKA8p2yF-26R1w4oqR",
-          "mode": "list",
-          "cachedResultName": "Rag_Folder",
-          "cachedResultUrl": "https://drive.google.com/drive/folders/1Cz1D0PMfhn5_UOiKA8p2yF-26R1w4oqR"
-        },
-        "event": "fileUpdated",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.googleDriveTrigger",
-      "typeVersion": 1,
-      "position": [
-        -6960,
-        736
-      ],
-      "id": "61d35178-da37-4d7f-9549-8672e8f1f58f",
-      "name": "ON FILE UPDATED1",
-      "credentials": {
-        "googleDriveOAuth2Api": {
-          "id": "aFMaMwmaqVjQg779",
-          "name": "Google Drive account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "pollTimes": {
-          "item": [
-            {
-              "mode": "everyMinute"
-            }
-          ]
-        },
-        "triggerOn": "specificFolder",
-        "folderToWatch": {
-          "__rl": true,
-          "value": "1Cz1D0PMfhn5_UOiKA8p2yF-26R1w4oqR",
-          "mode": "list",
-          "cachedResultName": "Rag_Folder",
-          "cachedResultUrl": "https://drive.google.com/drive/folders/1Cz1D0PMfhn5_UOiKA8p2yF-26R1w4oqR"
-        },
-        "event": "fileCreated",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.googleDriveTrigger",
-      "typeVersion": 1,
-      "position": [
-        -6944,
-        1008
-      ],
-      "id": "06b0de0e-2ab4-4700-91cd-b41f1313b796",
-      "name": "ON FILE CREATED1",
-      "credentials": {
-        "googleDriveOAuth2Api": {
-          "id": "aFMaMwmaqVjQg779",
-          "name": "Google Drive account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "content": "##  SET MISTRAL OCR FILES \n",
+        "content": "##  MISTRAL OCR SUBWORKFLOW\n",
         "height": 320,
-        "width": 1280
+        "width": 848
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        -3728,
-        -256
+        -3072,
+        1632
       ],
       "typeVersion": 1,
-      "id": "6e3e4968-2784-4399-bc5d-a0781c7531d9",
+      "id": "8fea1fcd-e735-457e-8a41-f019e3f3b0b9",
       "name": "Sticky Note4"
     },
     {
@@ -698,54 +526,25 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        -5920,
-        752
+        -5408,
+        2240
       ],
-      "id": "55334d85-7d69-43d0-ae32-73f771674f0d",
+      "id": "378bd260-687c-4c20-a0c1-4eb727f33d0e",
       "name": "CHECK IF TYPE OF DATA URL "
     },
     {
       "parameters": {
-        "method": "POST",
-        "url": "https://api.firecrawl.dev/v1/crawl",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpBearerAuth",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "{\n  \"url\": \"https://www.sportnavi.de/\",\n  \"limit\": null,\n  \"webhook\": {\n        \"url\": \"https://www.tsi.com.tn/\",\n        \"events\": [ \"page\"]\n  }, \n  \"scrapeOptions\": {\n        \"formats\": [\"markdown\"]\n  }\n}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        -6256,
-        208
-      ],
-      "id": "352c8876-cf9a-4084-afce-934e5edded75",
-      "name": "HTTP Request2",
-      "credentials": {
-        "httpHeaderAuth": {
-          "id": "ERrlSSX4e1Ogw9hN",
-          "name": "Header Auth account"
-        },
-        "httpBearerAuth": {
-          "id": "QGi7SRbOrWefvZg5",
-          "name": "Bearer Auth account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "content": "## Trigger",
-        "height": 1280
+        "content": "## Google Drive Trigger",
+        "height": 1648,
+        "width": 272
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        -7024,
-        128
+        -6512,
+        1616
       ],
       "typeVersion": 1,
-      "id": "7b8f24a6-7196-4ee5-9df0-eb67f992d1c0",
+      "id": "15766d83-6a7a-4488-9464-0b25e5f80074",
       "name": "Sticky Note"
     },
     {
@@ -757,15 +556,15 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.5,
       "position": [
-        -6368,
-        -80
+        -6304,
+        1296
       ],
-      "id": "dc805bd5-54dd-448a-b4ce-e8a8596b402d",
+      "id": "601c8dd0-bf53-4951-819b-b4c03b4ca3b8",
       "name": "Supabase /Migration",
       "credentials": {
         "postgres": {
-          "id": "m1UUBkHDDbDfNWrB",
-          "name": "Postgres account 2"
+          "id": "YRDpTKDNQPMm4nzP",
+          "name": "CLAUD POSTGRES CREDENTIALS"
         }
       }
     },
@@ -774,31 +573,32 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        -6960,
-        -80
+        -6672,
+        1296
       ],
-      "id": "7d263190-de42-4d5e-9431-a1c56033855d",
+      "id": "a08869b2-481d-4837-bbfb-7ba3f985bb90",
       "name": "When clicking ‘Execute workflow’"
     },
     {
       "parameters": {
-        "content": "## Initiate Supabase ",
-        "height": 256,
-        "width": 1536
+        "content": "## Supabase /Migration Node: Database Setup and Migration\n\nThis node executes a comprehensive PostgreSQL script to set up, clean, and migrate a database for a hybrid search system. It's designed for use with Supabase and includes features for managing document data, embeddings, and a token tracker.\n\n### Key Actions:\n\n* **Cleanup**: Drops old tables, functions, and indexes to ensure a clean slate. This includes `hybrid_search_vector_store_table`, `documents`, `document_embeddings`, and several others.\n* **Extension Management**: Drops and recreates the `vector` extension for handling vector embeddings.\n* **Table Creation**: Creates several new or renamed tables:\n    * `token_tracker`: Stores information about tokens used, user input, AI responses, and enhanced content.\n    * `processed_files` and `deleted_files`: Track the status and history of files processed by the system.\n    * `document_records`: Manages document metadata like `doc_id`, `file_name`, and `content_hash`.\n    * `raw_data_table`: Stores raw JSON data.\n    * `metadata_schema`: Defines and stores a schema for document metadata.\n    * `documents`: The main table for storing document `content`, `embedding` vectors, and `metadata`. It's optimized with indexes for full-text search (`fts`) and vector similarity search (`hnsw`).\n* **Function Creation/Update**: Creates or replaces two crucial PostgreSQL functions:\n    * `search_documents_hybrid`: This function performs a **hybrid search** combining full-text search and semantic vector search. It supports metadata filtering and uses the **Reciprocal Rank Fusion (RRF)** algorithm to combine and re-rank results from both search types.\n    * `search_similar_documents`: This function performs a **pure semantic similarity search** based on vector embeddings, allowing for different distance methods (cosine, euclidean, inner product) and metadata filtering.\n\nI can't directly edit the code for you, but I can provide a professional-looking Sticky Note with the information you requested. You can copy and paste this into your workflow.\n\n***\n\n### ⚠️ **IMPORTANT: Database Reset and Migration** ⚠️\n\nThis workflow node performs a **complete database migration**. When executed, it will:\n\n1.  **DELETE ALL EXISTING DATA**: It will drop and recreate all tables and functions, including `documents`, `document_records`, `token_tracker`, and others.\n2.  **PERMANENT DATA LOSS**: All previously stored records, including document content, metadata, and chat history, will be **permanently deleted**.\n3.  **SETUP**: The script will then re-create the entire database schema, including the `documents` table and the `search_documents_hybrid` and `search_similar_documents` functions.\n\n**USE WITH CAUTION:** This operation is destructive and should only be used for initial setup or a full database reset. Do not run this on a production database that contains valuable data.",
+        "height": 896,
+        "width": 1840,
+        "color": 3
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -7056,
-        -176
+        -7968,
+        1088
       ],
-      "id": "22d5ddb4-531a-4e68-bcf8-1f51df9c5563",
+      "id": "16c28dea-389f-41f9-b27b-351900ccab5d",
       "name": "Sticky Note1"
     },
     {
       "parameters": {
         "promptType": "define",
-        "text": "=# File Title :/n {{ $('EXTRACT ONLY USEFUL  DOC METADATA ').item.json.DOC_NAME }}\n# File Content: {{ $('Edit Fields').item.json.CONTENT.split(/\\s+/).length > 500 ? $('Edit Fields').item.json.CONTENT.split(/\\s+/).slice(0, 500).join(' ') + '...' : $('Edit Fields').item.json.CONTENT }}\n",
+        "text": "=# File Title :/n {{ $('EXTRACT ONLY USEFUL  DOC METADATA ').item.json.DOC_NAME }}\n# File Content: {{ $('SET PARMETER FOR NAME CONSISTENCY').item.json.CONTENT.split(/\\s+/).length > 500 ? $('SET PARMETER FOR NAME CONSISTENCY').item.json.CONTENT.split(/\\s+/).slice(0, 500).join(' ') + '...' : $('SET PARMETER FOR NAME CONSISTENCY').item.json.CONTENT }}\n",
         "hasOutputParser": true,
         "messages": {
           "messageValues": [
@@ -812,37 +612,12 @@
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.7,
       "position": [
-        960,
-        0
+        1664,
+        1968
       ],
-      "id": "e4684d81-3772-4aef-83a7-ec72bb9c1bc8",
+      "id": "eae26c10-1f14-4dbe-9892-479bb1b7e485",
       "name": "Basic LLM Chain",
       "alwaysOutputData": true
-    },
-    {
-      "parameters": {
-        "model": {
-          "__rl": true,
-          "mode": "list",
-          "value": "claude-sonnet-4-20250514",
-          "cachedResultName": "Claude 4 Sonnet"
-        },
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
-      "typeVersion": 1.3,
-      "position": [
-        960,
-        368
-      ],
-      "id": "0895b278-376b-4dde-bd92-83a38bc7929e",
-      "name": "Anthropic Chat Model",
-      "credentials": {
-        "anthropicApi": {
-          "id": "XgngEwlr4TIlflo0",
-          "name": "Anthropic account"
-        }
-      }
     },
     {
       "parameters": {
@@ -852,10 +627,10 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
       "position": [
-        1104,
-        384
+        1808,
+        2288
       ],
-      "id": "d0036117-006c-4565-9863-fc27b1a125ed",
+      "id": "f73fe59d-a164-4419-84b6-5130969ef7ec",
       "name": "Structured Output Parser"
     },
     {
@@ -864,10 +639,10 @@
       "name": "Replace Me",
       "typeVersion": 1,
       "position": [
-        4656,
-        912
+        5584,
+        2400
       ],
-      "id": "8f6df51c-4259-4114-be1c-3650e32f094a"
+      "id": "642afab8-8db8-4a1f-aca7-74fba7850e75"
     },
     {
       "parameters": {
@@ -884,10 +659,10 @@
       "type": "n8n-nodes-base.summarize",
       "typeVersion": 1.1,
       "position": [
-        -4112,
-        1024
+        -3600,
+        2512
       ],
-      "id": "ebaa9f9a-9c01-4d59-af3e-4cb59858d035",
+      "id": "b4ab76e3-18b7-43ac-b15e-f2a263adf901",
       "name": "CONCATENATE THE RESULT ",
       "alwaysOutputData": true
     },
@@ -898,10 +673,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -4352,
-        1024
+        -3920,
+        2512
       ],
-      "id": "9d0adfed-f330-444c-a5dc-8e4968826e45",
+      "id": "245ea33d-8ddd-43a0-a198-9f18dd711f98",
       "name": "EXTARCT THE COLUMNS NAMES AND DTYPES FROM THE TABULAR DATA",
       "alwaysOutputData": true
     },
@@ -914,10 +689,10 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -4496,
-        960
+        -4000,
+        2416
       ],
-      "id": "d7e9f180-3a4d-4c21-95c3-d2f35a845f7d",
+      "id": "2e964db5-477c-46b5-aece-bfa9b950409e",
       "name": "Sticky Note2"
     },
     {
@@ -935,10 +710,10 @@
       "type": "n8n-nodes-base.summarize",
       "typeVersion": 1.1,
       "position": [
-        -4160,
-        1312
+        -3632,
+        2800
       ],
-      "id": "d9e1ade2-94c5-40cd-810c-e4224065bac4",
+      "id": "ee3eae3e-d980-4950-a520-de0132ee7869",
       "name": "CONCATENATE THE REPSONSE",
       "alwaysOutputData": true
     },
@@ -950,10 +725,10 @@
       "type": "n8n-nodes-base.aggregate",
       "typeVersion": 1,
       "position": [
-        -4384,
-        1312
+        -3904,
+        2800
       ],
-      "id": "dbd07751-d924-4c29-93e4-f58cdb00563b",
+      "id": "d6fd8159-0026-4282-be20-2a5ab121787d",
       "name": "GET ALL SAMPLES IN ONE FILED ",
       "alwaysOutputData": true
     },
@@ -966,10 +741,10 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -4512,
-        1232
+        -4000,
+        2720
       ],
-      "id": "80248d6a-4142-4b29-a89d-eb8fef676d34",
+      "id": "b9048888-0d44-445d-b479-22d14d5b1a8b",
       "name": "Sticky Note8"
     },
     {
@@ -1044,16 +819,16 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        -4240,
-        1648
+        -3760,
+        3104
       ],
-      "id": "7664892c-ee45-4ee6-83c4-4c7c3c3d7311",
+      "id": "41fdabd8-44cb-429d-b753-605aa48c5cce",
       "name": "SAVE SAMPLES  IN JSONB FROMAT IN TABULAR_DATA_STORE TABLE",
       "alwaysOutputData": true,
       "credentials": {
         "postgres": {
-          "id": "m1UUBkHDDbDfNWrB",
-          "name": "Postgres account 2"
+          "id": "YRDpTKDNQPMm4nzP",
+          "name": "CLAUD POSTGRES CREDENTIALS"
         }
       }
     },
@@ -1066,71 +841,11 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -4544,
-        1536
+        -4000,
+        3024
       ],
-      "id": "48af4009-d831-49f0-b2a4-1ea7a4d49928",
+      "id": "8a87f6f7-1566-44df-9fc9-8000fecfaf93",
       "name": "Sticky Note10"
-    },
-    {
-      "parameters": {
-        "mode": "combine",
-        "fieldsToMatchString": "concatenated_columnTypes",
-        "joinMode": "keepNonMatches",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 3.2,
-      "position": [
-        -3056,
-        1152
-      ],
-      "id": "8214a718-3a52-46fa-8ff3-d4c5e60453ba",
-      "name": "Merge1",
-      "executeOnce": true
-    },
-    {
-      "parameters": {
-        "aggregate": "aggregateAllItemData",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.aggregate",
-      "typeVersion": 1,
-      "position": [
-        -2816,
-        1152
-      ],
-      "id": "a8dd5765-5d3a-4633-bbda-df19bbc85854",
-      "name": "Aggregate"
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "7727550c-344a-4e6e-aab8-960d64ea0d93",
-              "name": "data",
-              "value": "={{ $json.data[1].concatenated_data }}",
-              "type": "string"
-            },
-            {
-              "id": "0547fb5d-3fe5-487c-8fd3-1b8c1f302a5f",
-              "name": "schema",
-              "value": "={{ $json.data[0].concatenated_columnTypes }}",
-              "type": "string"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        -2608,
-        1152
-      ],
-      "id": "daa25554-92b6-4440-bd9d-e824a069e78a",
-      "name": "Edit Fields2"
     },
     {
       "parameters": {
@@ -1140,10 +855,10 @@
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1,
       "position": [
-        -4720,
-        1104
+        -4208,
+        2592
       ],
-      "id": "c285cbe4-e2aa-416e-8619-343cb4e6a9e3",
+      "id": "f09fb28d-ee6c-49ae-90bd-d9b14ad1915e",
       "name": "EXTRACT FROM EXCEL FILE"
     },
     {
@@ -1153,10 +868,10 @@
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1,
       "position": [
-        -4720,
-        1312
+        -4208,
+        2800
       ],
-      "id": "1ce80ceb-6184-42fe-941e-dbe78d2805fc",
+      "id": "e11f7dbf-ac44-4398-96b2-567b837af0de",
       "name": "EXTRACT FROM CSV"
     },
     {
@@ -1170,9 +885,9 @@
           },
           "conditions": [
             {
-              "id": "b6bf54ae-487d-475a-9a38-ea8655844d57",
-              "leftValue": "={{ $('EXTRACT FROM EXCEL FILE').isExecuted }}",
-              "rightValue": "",
+              "id": "a08be739-1d6f-41b6-ac2d-bdc988dbad17",
+              "leftValue": "={{ $('EXTRACT FROM CSV').isExecuted }}",
+              "rightValue": "=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
               "operator": {
                 "type": "boolean",
                 "operation": "true",
@@ -1180,9 +895,9 @@
               }
             },
             {
-              "id": "a08be739-1d6f-41b6-ac2d-bdc988dbad17",
-              "leftValue": "={{ $('EXTRACT FROM CSV').isExecuted }}",
-              "rightValue": "=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+              "id": "b6bf54ae-487d-475a-9a38-ea8655844d57",
+              "leftValue": "={{ $('EXTRACT FROM EXCEL FILE').isExecuted }}",
+              "rightValue": "",
               "operator": {
                 "type": "boolean",
                 "operation": "true",
@@ -1197,10 +912,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        -192,
-        336
+        496,
+        1776
       ],
-      "id": "d9c494e1-aedf-480a-bf8a-3f3415ea088f",
+      "id": "b8ca1eab-f587-447a-ad67-33d227648852",
       "name": "IsTabular"
     },
     {
@@ -1214,10 +929,10 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        -6960,
-        208
+        -6416,
+        1760
       ],
-      "id": "1c289603-c5bc-480c-975c-d1cbbbbd272a",
+      "id": "41b2474f-5150-47aa-bd61-63f57aa2a9c9",
       "name": "Schedule Trigger"
     },
     {
@@ -1227,11 +942,11 @@
           "fieldValues": [
             {
               "fieldId": "file_id",
-              "fieldValue": "={{ $json.metadata?.doc_id || $json.id }}"
+              "fieldValue": "={{ $json.metadata?.doc_id || $json.id ||$('EXTRACT ONLY USEFUL  DOC METADATA ').item.json.DOC_ID}}"
             },
             {
               "fieldId": "file_title",
-              "fieldValue": "={{ $json.metadata?.doc_id || $json.name }}\n"
+              "fieldValue": "={{ $json.metadata?.doc_id || $json.name||$('EXTRACT ONLY USEFUL  DOC METADATA ').item.json.DOC_NAME }}\n"
             },
             {
               "fieldId": "file_type",
@@ -1243,15 +958,15 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        4176,
-        -32
+        5104,
+        1456
       ],
-      "id": "d60faa5d-fd1f-4901-9596-db2fcbe5b567",
+      "id": "1360db0f-331f-49e4-9421-69e406c6d986",
       "name": "Create a row",
       "credentials": {
         "supabaseApi": {
-          "id": "F11Pn5ORjMbpDP63",
-          "name": "Supabase account"
+          "id": "3cRXAQK1eN8QzIzJ",
+          "name": "LOCAL SUPABASE V"
         }
       }
     },
@@ -1264,10 +979,10 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        -6960,
-        496
+        -6416,
+        1920
       ],
-      "id": "9257479b-690a-4cb8-8799-5ba10b0bbe6c",
+      "id": "1b88b955-aec5-4af5-8536-ea04421b2686",
       "name": "WEB SCRAPING WEBHOOK",
       "webhookId": "d3f1f448-2891-4405-8cf5-5fb846b62adf"
     },
@@ -1298,10 +1013,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        2880,
-        -32
+        3600,
+        1456
       ],
-      "id": "efb4d85e-7ad5-4819-9cdb-a708dbaa61e1",
+      "id": "fd8c4112-e39c-4421-b8ac-85517e24f4e0",
       "name": "isURl"
     },
     {
@@ -1311,10 +1026,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -2704,
-        176
+        -2208,
+        2112
       ],
-      "id": "ca9bd0d3-ae40-4e40-b271-ec3075e6e597",
+      "id": "eb6c03f8-806c-42b5-a178-4e9189011be8",
       "name": "CHECK IF THERE IS CHARACTER ISSSUES IN THE PROVIDED FILE"
     },
     {
@@ -1325,10 +1040,10 @@
       "type": "n8n-nodes-base.markdown",
       "typeVersion": 1,
       "position": [
-        -4352,
-        688
+        -3840,
+        2080
       ],
-      "id": "a6687b4b-f61f-4652-89f7-3ae7ea9dc549",
+      "id": "191421df-0bb0-44e5-a344-9bc89080d794",
       "name": "CONVERT TO MARKDOWN"
     },
     {
@@ -1338,97 +1053,19 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        544,
-        0
+        1200,
+        1968
       ],
-      "id": "f184d92c-c489-4520-af08-67b0bcfcc265",
+      "id": "4c5f95c0-28b6-44ca-af99-8066c2fd76c4",
       "name": "Code7"
     },
     {
       "parameters": {
-        "jsCode": "// N8N Universal Text to Markdown Converter\n// Works dynamically with any text input\n// Input: $input.first().json.text\n\nfunction convertTextToMarkdown(text) {\n  if (!text || typeof text !== 'string') {\n    return '';\n  }\n\n  // Normalize text - handle both literal \\n and actual newlines\n  text = text.replace(/\\\\n/g, '\\n').replace(/\\r/g, '');\n  \n  // Split into lines and clean\n  let lines = text.split('\\n')\n    .map(line => line.trim())\n    .filter(line => line.length > 0);\n  \n  if (lines.length === 0) return '';\n  \n  // Analyze the text structure dynamically\n  const analysis = analyzeTextStructure(lines);\n  \n  // Convert based on analysis\n  return processLines(lines, analysis);\n}\n\nfunction analyzeTextStructure(lines) {\n  const structure = {\n    hasNumberedSections: false,\n    hasLists: false,\n    hasTitles: false,\n    hasSubsections: false,\n    language: 'unknown',\n    contentType: 'unknown'\n  };\n  \n  // Analyze patterns\n  lines.forEach(line => {\n    // Check for numbered sections (1.1, 2.3, etc.)\n    if (line.match(/^\\d+\\.\\d*\\.?\\s+/)) {\n      structure.hasNumberedSections = true;\n    }\n    \n    // Check for lists\n    if (line.match(/^[-*+]\\s+/) || line.match(/^\\d+\\.\\s+[a-zA-Z]/)) {\n      structure.hasLists = true;\n    }\n    \n    // Check for titles (all caps or title case)\n    if (line.length > 5 && (line === line.toUpperCase() || isTitleCase(line))) {\n      structure.hasTitles = true;\n    }\n    \n    // Detect language\n    if (line.match(/[àâäéèêëïîôöùûüÿç]/)) {\n      structure.language = 'french';\n    } else if (line.match(/[áéíóúñü]/)) {\n      structure.language = 'spanish';\n    } else if (line.match(/[äöüß]/)) {\n      structure.language = 'german';\n    } else if (structure.language === 'unknown' && line.match(/[a-zA-Z]/)) {\n      structure.language = 'english';\n    }\n    \n    // Detect content type\n    if (line.includes('©') || line.includes('Copyright') || line.match(/\\d{4}/)) {\n      structure.contentType = 'document';\n    }\n  });\n  \n  return structure;\n}\n\nfunction isTitleCase(line) {\n  const words = line.split(/\\s+/);\n  return words.length > 1 && words.every(word => \n    word.length === 0 || word[0] === word[0].toUpperCase()\n  );\n}\n\nfunction processLines(lines, analysis) {\n  const result = [];\n  let i = 0;\n  let currentContext = 'none'; // 'title', 'list', 'paragraph'\n  \n  while (i < lines.length) {\n    const line = lines[i];\n    const nextLine = lines[i + 1] || '';\n    \n    // Skip obviously unwanted content\n    if (shouldSkipLine(line)) {\n      i++;\n      continue;\n    }\n    \n    // Determine line type dynamically\n    const lineType = classifyLine(line, nextLine, analysis, currentContext);\n    \n    // Process based on type\n    switch (lineType) {\n      case 'main_title':\n        if (currentContext === 'list') result.push('');\n        result.push(`# ${cleanLine(line)}`);\n        result.push('');\n        currentContext = 'title';\n        break;\n        \n      case 'section_title':\n        if (currentContext === 'list') result.push('');\n        result.push(`## ${cleanLine(line)}`);\n        result.push('');\n        currentContext = 'title';\n        break;\n        \n      case 'subsection_title':\n        if (currentContext === 'list') result.push('');\n        result.push(`### ${cleanLine(line)}`);\n        result.push('');\n        currentContext = 'title';\n        break;\n        \n      case 'list_item':\n        if (currentContext !== 'list' && currentContext !== 'none') {\n          result.push('');\n        }\n        const listItem = formatListItem(line, analysis);\n        if (listItem) result.push(listItem);\n        currentContext = 'list';\n        break;\n        \n      case 'paragraph':\n        if (currentContext === 'list') result.push('');\n        \n        // Collect continuation lines for paragraph\n        const paragraph = collectParagraph(lines, i, analysis);\n        result.push(paragraph.text);\n        result.push('');\n        i = paragraph.endIndex;\n        currentContext = 'paragraph';\n        break;\n        \n      default:\n        // Handle unknown content conservatively\n        if (line.length > 5) {\n          if (currentContext === 'list') result.push('');\n          result.push(formatText(line));\n          result.push('');\n          currentContext = 'paragraph';\n        }\n    }\n    \n    i++;\n  }\n  \n  // Clean up final output\n  return result\n    .filter(line => line !== null && line !== undefined)\n    .join('\\n')\n    .replace(/\\n{3,}/g, '\\n\\n')\n    .trim();\n}\n\nfunction shouldSkipLine(line) {\n  if (!line || line.length < 2) return true;\n  \n  // Universal skip patterns\n  const skipPatterns = [\n    /^(menu|rechercher|search|navigate|page|zurück|siguiente|précédente)/i,\n    /https?:\\/\\//,\n    /www\\./,\n    /^\\d{1,2}[\\/\\-\\.]\\d{1,2}[\\/\\-\\.]\\d{2,4}/,\n    /%[0-9A-F]{2}/,\n    /^[\\s\\-\\*_=]+$/,\n    /^\\s*[<>←→↑↓]+\\s*$/\n  ];\n  \n  return skipPatterns.some(pattern => pattern.test(line)) ||\n         (line.length > 150 && !line.match(/[.!?]$/));\n}\n\nfunction classifyLine(line, nextLine, analysis, currentContext) {\n  // Dynamic classification based on content and context\n  \n  // Main titles - usually all caps or very prominent\n  if (line.length > 8 && \n      (line === line.toUpperCase() || \n       line.includes('GUIDE') || \n       line.includes('MANUAL') ||\n       line.match(/^[A-ZÀ-Ÿ][A-ZÀ-Ÿ\\s]{8,}$/))) {\n    return 'main_title';\n  }\n  \n  // Section titles - numbered or prominent\n  if (line.match(/^\\d+\\.\\s*[A-Za-zÀ-ÿ]/) ||\n      line.match(/^\\d+\\.\\d+\\.?\\s*[A-Za-zÀ-ÿ]/)) {\n    return 'section_title';\n  }\n  \n  // Subsection titles - shorter, title-case\n  if (line.length < 50 && \n      line.length > 5 &&\n      isTitleCase(line) &&\n      !line.includes('(') &&\n      !line.match(/^\\d/) &&\n      currentContext !== 'list') {\n    return 'subsection_title';\n  }\n  \n  // List items - various patterns\n  if (line.match(/^[-*+•]\\s+/) ||\n      line.match(/^\\d+\\.\\s+[a-zA-ZÀ-ÿ]/) ||\n      (line.length < 60 && \n       currentContext === 'list' && \n       !line.includes('.') &&\n       line.match(/^[A-Za-zÀ-ÿ]/))) {\n    return 'list_item';\n  }\n  \n  // Paragraphs - longer text content\n  if (line.length > 15 && \n      (line.includes(' ') || line.length > 30) &&\n      !line.match(/^\\d+\\./) &&\n      line.match(/[a-zA-ZÀ-ÿ]/)) {\n    return 'paragraph';\n  }\n  \n  return 'unknown';\n}\n\nfunction formatListItem(line, analysis) {\n  let cleaned = line\n    .replace(/^[-*+•]\\s*/, '')\n    .replace(/^\\d+\\.\\s*/, '')\n    .trim();\n  \n  if (cleaned.length === 0) return null;\n  \n  // Determine indentation based on number pattern\n  let indent = '';\n  if (line.match(/^\\d+\\.\\d+/) || line.match(/^  /)) {\n    indent = '  ';\n  }\n  \n  return `${indent}- ${cleaned}`;\n}\n\nfunction collectParagraph(lines, startIndex, analysis) {\n  const paragraphLines = [lines[startIndex]];\n  let i = startIndex + 1;\n  \n  // Collect continuation lines\n  while (i < lines.length) {\n    const line = lines[i];\n    \n    // Stop if we hit a clear structural element\n    if (shouldSkipLine(line) ||\n        line.match(/^\\d+\\.\\s*[A-Za-z]/) ||\n        line.match(/^[-*+•]\\s+/) ||\n        line === line.toUpperCase() ||\n        isTitleCase(line) && line.length < 50) {\n      break;\n    }\n    \n    // Add if it's a continuation\n    if (line.length > 10 && \n        line.match(/[a-zA-ZÀ-ÿ]/) &&\n        !line.match(/^\\d+\\./)) {\n      paragraphLines.push(line);\n      i++;\n    } else {\n      break;\n    }\n  }\n  \n  return {\n    text: formatText(paragraphLines.join(' ')),\n    endIndex: i - 1\n  };\n}\n\nfunction cleanLine(line) {\n  return line\n    .replace(/^\\d+\\.?\\s*/, '')\n    .replace(/^\\d+\\.\\d+\\.?\\s*/, '')\n    .trim();\n}\n\nfunction formatText(text) {\n  // Universal text formatting\n  text = text.replace(/\\s+/g, ' '); // Normalize spaces\n  \n  // Format parenthetical content\n  text = text.replace(/\\(([^)]{3,})\\)/g, '*($1)*');\n  \n  // Bold important terms (language-agnostic)\n  const importantPatterns = [\n    /\\b(\\d+\\s*(tabs?|onglets?|pestañas?))\\b/gi,\n    /\\b(creation|création|modification|consultation|suppression|management|gestion|administration)\\b/gi,\n    /\\b(required|obligatoires?|necessary|nécessaires?)\\b/gi,\n    /\\b(important|crucial|essential|essentiel)\\b/gi\n  ];\n  \n  importantPatterns.forEach(pattern => {\n    text = text.replace(pattern, '**$1**');\n  });\n  \n  return text.trim();\n}\n\n// === N8N CODE EXECUTION ===\n\ntry {\n  // Get input text\n  const inputText = $input.first().json.text || $input.first().json.content|| '';\n  \n  if (!inputText) {\n    return [{\n      json: {\n        error: 'No text input provided',\n        markdown: '',\n        success: false\n      }\n    }];\n  }\n  \n  // Convert to markdown\n  const markdownText = convertTextToMarkdown(inputText);\n  \n  // Create metrics\n  const inputLines = inputText.split('\\n').filter(l => l.trim().length > 0).length;\n  const outputLines = markdownText.split('\\n').filter(l => l.trim().length > 0).length;\n  const compressionRatio = Math.round((1 - markdownText.length / inputText.length) * 100);\n  \n  return [{\n    json: {\n      markdown: markdownText,\n      original_text: inputText,\n      success: true,\n      metrics: {\n        input_lines: inputLines,\n        output_lines: outputLines,\n        input_length: inputText.length,\n        output_length: markdownText.length,\n        compression_ratio: compressionRatio + '%',\n        processed_at: new Date().toISOString()\n      },\n      preview: markdownText.substring(0, 300) + (markdownText.length > 300 ? '...' : '')\n    }\n  }];\n  \n} catch (error) {\n  return [{\n    json: {\n      error: error.message,\n      markdown: '',\n      success: false,\n      original_text: $input.first().json.text || ''\n    }\n  }];\n}"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        -4176,
-        304
-      ],
-      "id": "50b4e29a-858e-4db6-9f88-d76aaabaa6e1",
-      "name": "Code8"
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "213076d9-8280-4b75-99c7-5f20b0e6a430",
-              "name": "data",
-              "value": "={{ $json.markdown }}",
-              "type": "string"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        -3936,
-        304
-      ],
-      "id": "55922621-a69a-4c4f-9810-7752621b7048",
-      "name": "Edit Fields1"
-    },
-    {
-      "parameters": {
         "workflowId": {
           "__rl": true,
-          "value": "BkkMXHeZDWAm7A1G",
+          "value": "Wa5dHFtg2WzmBsGw",
           "mode": "list",
-          "cachedResultName": "OCR_WORKFLOW"
-        },
-        "workflowInputs": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "DOC_ID": "={{ $('EXTRACT ONLY USEFUL  DOC METADATA ').item.json.DOC_ID }}"
-          },
-          "matchingColumns": [
-            "DOC_ID"
-          ],
-          "schema": [
-            {
-              "id": "DOC_ID",
-              "displayName": "DOC_ID",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "canBeUsedToMatch": true,
-              "type": "string",
-              "removed": false
-            }
-          ],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": true
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1.2,
-      "position": [
-        -3152,
-        -144
-      ],
-      "id": "cbdf1b9d-35f9-4b24-9221-2b10031c28f8",
-      "name": "Execute Workflow"
-    },
-    {
-      "parameters": {
-        "workflowId": {
-          "__rl": true,
-          "value": "I4eiMJJLhSyRhKBd",
-          "mode": "list",
-          "cachedResultName": "CONTEXTUAL RETRIEVEL"
+          "cachedResultName": "Claud_Version_Contextual Retrievel Workflow"
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
@@ -1493,95 +1130,12 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        2144,
-        -320
+        2624,
+        1200
       ],
-      "id": "878f50ab-ef0a-403f-b3ef-0ef26477df1d",
-      "name": "Contextual Retrievel"
-    },
-    {
-      "parameters": {
-        "workflowId": {
-          "__rl": true,
-          "value": "jNLjbXXkOMOsvuA7",
-          "mode": "list",
-          "cachedResultName": "RECORD MANAGER AND VECTOR STORE LOGIC"
-        },
-        "workflowInputs": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "Content": "={{ $json.CONTENT }}",
-            "Doc_ID": "={{ $('EXTRACT ONLY USEFUL  DOC METADATA ').item.json.DOC_ID }}",
-            "SCHEMA": "={{ $json.schema }}",
-            "TYPE": "={{ $('EXTRACT FROM EXCEL FILE').isExecuted || $('EXTRACT FROM CSV').isExecuted ? \"Structured Data\" : \"Non Structured Data\" }}",
-            "FILE_NAME": "={{ $('EXTRACT ONLY USEFUL  DOC METADATA ').item.json.DOC_NAME }}"
-          },
-          "matchingColumns": [],
-          "schema": [
-            {
-              "id": "Content",
-              "displayName": "Content",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "canBeUsedToMatch": true,
-              "type": "string",
-              "removed": false
-            },
-            {
-              "id": "Doc_ID",
-              "displayName": "Doc_ID",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "canBeUsedToMatch": true,
-              "type": "string",
-              "removed": false
-            },
-            {
-              "id": "SCHEMA",
-              "displayName": "SCHEMA",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "canBeUsedToMatch": true,
-              "type": "string",
-              "removed": false
-            },
-            {
-              "id": "TYPE",
-              "displayName": "TYPE",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "canBeUsedToMatch": true,
-              "type": "string",
-              "removed": false
-            },
-            {
-              "id": "FILE_NAME",
-              "displayName": "FILE_NAME",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "canBeUsedToMatch": true,
-              "type": "string",
-              "removed": false
-            }
-          ],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": true
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1.2,
-      "position": [
-        -768,
-        336
-      ],
-      "id": "66ea2353-a8d9-42ec-bb8d-9439baa40bff",
-      "name": "Execute Workflow1"
+      "id": "c3386876-20d0-45af-b59c-67a5f48947a9",
+      "name": "Contextual Retrievel",
+      "alwaysOutputData": true
     },
     {
       "parameters": {
@@ -1591,10 +1145,10 @@
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1,
       "position": [
-        -4720,
-        32
+        -4160,
+        1328
       ],
-      "id": "2e508f57-9d65-49c5-a459-8c1db988a7a8",
+      "id": "b7496c97-0bed-4f37-b961-de4850fc0539",
       "name": "Extract from File"
     },
     {
@@ -1605,25 +1159,25 @@
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1,
       "position": [
-        -4688,
-        672
+        -4096,
+        2080
       ],
-      "id": "aa1a26e0-cbb1-4105-b38b-be37039d5ba7",
+      "id": "7bb74a4b-84e8-432c-aa9d-4258d6f64810",
       "name": "EXTRACT FROM HTML "
     },
     {
       "parameters": {
         "content": "##  CONTEXTUAL RETRIEVEL\n",
-        "height": 320,
+        "height": 304,
         "width": 1280
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        1504,
-        -416
+        2224,
+        1104
       ],
       "typeVersion": 1,
-      "id": "2dcaff34-6e7c-4edf-8eac-c3ada0f6429b",
+      "id": "60cdeee7-8154-46b2-b48a-ad9ef2c3ba7e",
       "name": "Sticky Note5"
     },
     {
@@ -1650,20 +1204,1030 @@
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
       "position": [
-        3520,
-        224
+        4272,
+        1872
       ],
-      "id": "e47d08c0-3273-4ef9-b43e-092dc2d85b79",
+      "id": "8b27ad72-0c62-4742-8566-37614c8b9253",
       "name": "Move file",
       "credentials": {
         "googleDriveOAuth2Api": {
-          "id": "aFMaMwmaqVjQg779",
+          "id": "BaCkgQEh4aOXF4Og",
           "name": "Google Drive account"
         }
       }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cloud.llamaindex.ai/api/v1/parsing/upload",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer llx-0ZxsMBCkWWiW0pRxX4eq9rcRZ02xkv0SiVjASk2VX0AnDcQa"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "=file",
+              "inputDataFieldName": "=data"
+            },
+            {
+              "name": "parse_mode",
+              "value": "parse_page_with_agent"
+            },
+            {
+              "name": "model",
+              "value": "openai-gpt-4-1-mini"
+            },
+            {
+              "name": "high_res_ocr",
+              "value": "true"
+            },
+            {
+              "name": "adaptive_long_table",
+              "value": "true"
+            },
+            {
+              "name": "outlined_table_extraction",
+              "value": "true"
+            },
+            {
+              "name": "output_tables_as_HTML",
+              "value": "true"
+            },
+            {
+              "name": "webhook_url",
+              "value": "https://n8nserver.ncr4ailab.de/webhook-test/0d7b1b9d-2a1f-48ed-95af-b5ef5132f7fa"
+            },
+            {
+              "name": "parsing_instruction",
+              "value": "Include image annotations with titles and descriptions in the text flow"
+            },
+            {
+              "name": "language",
+              "value": "=en"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -3872,
+        4048
+      ],
+      "id": "0969dfea-8096-4f98-839b-2324e84ef393",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -3712,
+        4048
+      ],
+      "id": "ce6dd918-5fcb-44e8-b12a-5fd325bbcbb9",
+      "name": "Wait",
+      "webhookId": "36a0e9c9-1b65-4a0f-9176-ff09273d72fd"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "4e79e2e6-9fd0-4aa3-93a1-594fe36be187",
+                    "leftValue": "={{ $json.status}}",
+                    "rightValue": "SUCCESS",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "SUCCESS"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.status}}",
+                    "rightValue": "PENDING",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "11937451-7328-40ae-b9aa-34af34ca0805"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "PENDING"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -3536,
+        4048
+      ],
+      "id": "7efc7679-7535-4877-a4a9-336c0b40b9b5",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -2960,
+        4064
+      ],
+      "id": "6f57390d-622c-4ced-aff6-cdcffcd66b27",
+      "name": "Wait1",
+      "webhookId": "4d0650e7-9229-4e1d-8b8a-c1fbeaab7b6d"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.cloud.llamaindex.ai/api/v1/parsing/job/{{ $json.id }}/details",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2480,
+        4064
+      ],
+      "id": "012b831e-3459-4628-bf16-ff9c566b46de",
+      "name": "HTTP Request1",
+      "retryOnFail": true,
+      "waitBetweenTries": 60
+    },
+    {
+      "parameters": {
+        "url": "=https://api.cloud.llamaindex.ai/api/v1/parsing/job/{{ $json.id }}/result/raw/markdown",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2912,
+        3808
+      ],
+      "id": "34e75bb6-c889-4ed8-8a90-91442a33059a",
+      "name": "HTTP Request3"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        1664,
+        2288
+      ],
+      "id": "3dc7fd1d-e62a-486d-ab21-13f82847dfc2",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "3YBplxts6vfr4Rs0",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "1Cz1D0PMfhn5_UOiKA8p2yF-26R1w4oqR",
+          "mode": "list",
+          "cachedResultName": "Rag_Folder",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1Cz1D0PMfhn5_UOiKA8p2yF-26R1w4oqR"
+        },
+        "event": "fileUpdated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        -6432,
+        3088
+      ],
+      "id": "e7f3bd00-f4ec-4bad-b049-1d25c161f106",
+      "name": "WATCH FOR FILE UPDATE (TRIGGER)",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "BaCkgQEh4aOXF4Og",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "1Cz1D0PMfhn5_UOiKA8p2yF-26R1w4oqR",
+          "mode": "list",
+          "cachedResultName": "Rag_Folder",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1Cz1D0PMfhn5_UOiKA8p2yF-26R1w4oqR"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        -6448,
+        2448
+      ],
+      "id": "7c217cd6-5ba0-4e90-b326-57a93f29584d",
+      "name": "WATCH FOR FILE CREATION(TRIGGER)",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "BaCkgQEh4aOXF4Og",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.firecrawl.dev/v1/crawl",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"url\": \"https://www.sportnavi.de/\",\n  \"limit\": 2,\n  \"webhook\": {\n        \"url\": \"https://n8nserver.ncr4ailab.de/webhook/d3f1f448-2891-4405-8cf5-5fb846b62adf\",\n        \"events\": [ \"page\"]\n  }, \n  \"scrapeOptions\": {\n        \"formats\": [\"markdown\"]\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -5760,
+        1760
+      ],
+      "id": "13b80c32-2d13-4d75-8675-086c5e0f6bd9",
+      "name": " SCRAPE WEB PAGE SETTINGS NODE ",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "9t4XntvFXi4Cvm0w",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## CONVERT TO BINARY FILE ",
+        "height": 288,
+        "width": 512
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -5200,
+        1936
+      ],
+      "id": "5c884a04-2823-4a8c-9586-2284f437b180",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## TABULAR DATA\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nTHIS  workflow is for handling tabular data from a file, likely a spreadsheet. Here is a sticky note that describes what this workflow does.\n\n📝 Tabular Data Ingestion & Schema Detection\nThis workflow is designed to automatically process tabular data from Excel or CSV files and store it in a database.\n\nFile Extraction: The workflow begins by reading data from either an Excel or a CSV file.\n\nSchema Detection: It then uses a custom code node to automatically determine the column names and data types (like string, integer, date_string) from the data.\n\nData Storage: The extracted data is aggregated and then saved into the raw_data_table in your database. Each row from the original file is stored as a JSONB object, which is efficient for storing semi-structured data.\n\nThis process allows you to ingest tabular data without having to manually define the schema beforehand.\n\n",
+        "height": 1264,
+        "width": 1024,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -4304,
+        2336
+      ],
+      "id": "81f508ec-557e-42ed-ab62-6fda1457d380",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "## LlamaIndex Document Parsing Workflow\nThis workflow handles the advanced parsing of documents using the LlamaIndex API, which is especially useful for complex file types.\n\nRequest for Parsing: It starts by sending a file to the LlamaIndex API for parsing. This request includes several parameters to ensure high-quality output, such as:\n\nparse_page_with_agent: Uses an AI agent to intelligently understand the document's structure.\n\nhigh_res_ocr: Ensures accurate text extraction from images.\n\nadaptive_long_table & outlined_table_extraction: Specifically designed to handle and correctly format tables, including long or complex ones.\n\noutput_tables_as_HTML: Returns tables in a structured HTML format for easy processing.\n\nwebhook_url: A webhook is set up to receive the results once the parsing is complete, which prevents the workflow from waiting for a long period.\n\nWait for Results: The workflow enters a Wait node, which pauses the execution. This is crucial because document parsing can take time.\n\nCheck Status & Retrieve:\n\nAfter the wait, it checks the status of the parsing job.\n\nIf the status is SUCCESS, it retrieves the parsed content (likely in Markdown format).\n\nIf the status is PENDING, it enters another Wait loop and re-checks the status, creating a robust polling mechanism until the job is done.\n\nNote: The wait times in this workflow are essential and should be adjusted depending on the size and complexity of the files being processed.",
+        "height": 848,
+        "width": 2576
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -4816,
+        3664
+      ],
+      "id": "7863aa07-b0e3-4219-98e4-fe6b34c94032",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "jsCode": "// N8N Universal Text to Markdown Converter\n// Works dynamically with any text input\n// Input: $input.first().json.text\n\nfunction convertTextToMarkdown(text) {\n  if (!text || typeof text !== 'string') {\n    return '';\n  }\n\n  // Normalize text - handle both literal \\n and actual newlines\n  text = text.replace(/\\\\n/g, '\\n').replace(/\\r/g, '');\n  \n  // Split into lines and clean\n  let lines = text.split('\\n')\n    .map(line => line.trim())\n    .filter(line => line.length > 0);\n  \n  if (lines.length === 0) return '';\n  \n  // Analyze the text structure dynamically\n  const analysis = analyzeTextStructure(lines);\n  \n  // Convert based on analysis\n  return processLines(lines, analysis);\n}\n\nfunction analyzeTextStructure(lines) {\n  const structure = {\n    hasNumberedSections: false,\n    hasLists: false,\n    hasTitles: false,\n    hasSubsections: false,\n    language: 'unknown',\n    contentType: 'unknown'\n  };\n  \n  // Analyze patterns\n  lines.forEach(line => {\n    // Check for numbered sections (1.1, 2.3, etc.)\n    if (line.match(/^\\d+\\.\\d*\\.?\\s+/)) {\n      structure.hasNumberedSections = true;\n    }\n    \n    // Check for lists\n    if (line.match(/^[-*+]\\s+/) || line.match(/^\\d+\\.\\s+[a-zA-Z]/)) {\n      structure.hasLists = true;\n    }\n    \n    // Check for titles (all caps or title case)\n    if (line.length > 5 && (line === line.toUpperCase() || isTitleCase(line))) {\n      structure.hasTitles = true;\n    }\n    \n    // Detect language\n    if (line.match(/[àâäéèêëïîôöùûüÿç]/)) {\n      structure.language = 'french';\n    } else if (line.match(/[áéíóúñü]/)) {\n      structure.language = 'spanish';\n    } else if (line.match(/[äöüß]/)) {\n      structure.language = 'german';\n    } else if (structure.language === 'unknown' && line.match(/[a-zA-Z]/)) {\n      structure.language = 'english';\n    }\n    \n    // Detect content type\n    if (line.includes('©') || line.includes('Copyright') || line.match(/\\d{4}/)) {\n      structure.contentType = 'document';\n    }\n  });\n  \n  return structure;\n}\n\nfunction isTitleCase(line) {\n  const words = line.split(/\\s+/);\n  return words.length > 1 && words.every(word => \n    word.length === 0 || word[0] === word[0].toUpperCase()\n  );\n}\n\nfunction processLines(lines, analysis) {\n  const result = [];\n  let i = 0;\n  let currentContext = 'none'; // 'title', 'list', 'paragraph'\n  \n  while (i < lines.length) {\n    const line = lines[i];\n    const nextLine = lines[i + 1] || '';\n    \n    // Skip obviously unwanted content\n    if (shouldSkipLine(line)) {\n      i++;\n      continue;\n    }\n    \n    // Determine line type dynamically\n    const lineType = classifyLine(line, nextLine, analysis, currentContext);\n    \n    // Process based on type\n    switch (lineType) {\n      case 'main_title':\n        if (currentContext === 'list') result.push('');\n        result.push(`# ${cleanLine(line)}`);\n        result.push('');\n        currentContext = 'title';\n        break;\n        \n      case 'section_title':\n        if (currentContext === 'list') result.push('');\n        result.push(`## ${cleanLine(line)}`);\n        result.push('');\n        currentContext = 'title';\n        break;\n        \n      case 'subsection_title':\n        if (currentContext === 'list') result.push('');\n        result.push(`### ${cleanLine(line)}`);\n        result.push('');\n        currentContext = 'title';\n        break;\n        \n      case 'list_item':\n        if (currentContext !== 'list' && currentContext !== 'none') {\n          result.push('');\n        }\n        const listItem = formatListItem(line, analysis);\n        if (listItem) result.push(listItem);\n        currentContext = 'list';\n        break;\n        \n      case 'paragraph':\n        if (currentContext === 'list') result.push('');\n        \n        // Collect continuation lines for paragraph\n        const paragraph = collectParagraph(lines, i, analysis);\n        result.push(paragraph.text);\n        result.push('');\n        i = paragraph.endIndex;\n        currentContext = 'paragraph';\n        break;\n        \n      default:\n        // Handle unknown content conservatively\n        if (line.length > 5) {\n          if (currentContext === 'list') result.push('');\n          result.push(formatText(line));\n          result.push('');\n          currentContext = 'paragraph';\n        }\n    }\n    \n    i++;\n  }\n  \n  // Clean up final output\n  return result\n    .filter(line => line !== null && line !== undefined)\n    .join('\\n')\n    .replace(/\\n{3,}/g, '\\n\\n')\n    .trim();\n}\n\nfunction shouldSkipLine(line) {\n  if (!line || line.length < 2) return true;\n  \n  // Universal skip patterns\n  const skipPatterns = [\n    /^(menu|rechercher|search|navigate|page|zurück|siguiente|précédente)/i,\n    /https?:\\/\\//,\n    /www\\./,\n    /^\\d{1,2}[\\/\\-\\.]\\d{1,2}[\\/\\-\\.]\\d{2,4}/,\n    /%[0-9A-F]{2}/,\n    /^[\\s\\-\\*_=]+$/,\n    /^\\s*[<>←→↑↓]+\\s*$/\n  ];\n  \n  return skipPatterns.some(pattern => pattern.test(line)) ||\n         (line.length > 150 && !line.match(/[.!?]$/));\n}\n\nfunction classifyLine(line, nextLine, analysis, currentContext) {\n  // Dynamic classification based on content and context\n  \n  // Main titles - usually all caps or very prominent\n  if (line.length > 8 && \n      (line === line.toUpperCase() || \n       line.includes('GUIDE') || \n       line.includes('MANUAL') ||\n       line.match(/^[A-ZÀ-Ÿ][A-ZÀ-Ÿ\\s]{8,}$/))) {\n    return 'main_title';\n  }\n  \n  // Section titles - numbered or prominent\n  if (line.match(/^\\d+\\.\\s*[A-Za-zÀ-ÿ]/) ||\n      line.match(/^\\d+\\.\\d+\\.?\\s*[A-Za-zÀ-ÿ]/)) {\n    return 'section_title';\n  }\n  \n  // Subsection titles - shorter, title-case\n  if (line.length < 50 && \n      line.length > 5 &&\n      isTitleCase(line) &&\n      !line.includes('(') &&\n      !line.match(/^\\d/) &&\n      currentContext !== 'list') {\n    return 'subsection_title';\n  }\n  \n  // List items - various patterns\n  if (line.match(/^[-*+•]\\s+/) ||\n      line.match(/^\\d+\\.\\s+[a-zA-ZÀ-ÿ]/) ||\n      (line.length < 60 && \n       currentContext === 'list' && \n       !line.includes('.') &&\n       line.match(/^[A-Za-zÀ-ÿ]/))) {\n    return 'list_item';\n  }\n  \n  // Paragraphs - longer text content\n  if (line.length > 15 && \n      (line.includes(' ') || line.length > 30) &&\n      !line.match(/^\\d+\\./) &&\n      line.match(/[a-zA-ZÀ-ÿ]/)) {\n    return 'paragraph';\n  }\n  \n  return 'unknown';\n}\n\nfunction formatListItem(line, analysis) {\n  let cleaned = line\n    .replace(/^[-*+•]\\s*/, '')\n    .replace(/^\\d+\\.\\s*/, '')\n    .trim();\n  \n  if (cleaned.length === 0) return null;\n  \n  // Determine indentation based on number pattern\n  let indent = '';\n  if (line.match(/^\\d+\\.\\d+/) || line.match(/^  /)) {\n    indent = '  ';\n  }\n  \n  return `${indent}- ${cleaned}`;\n}\n\nfunction collectParagraph(lines, startIndex, analysis) {\n  const paragraphLines = [lines[startIndex]];\n  let i = startIndex + 1;\n  \n  // Collect continuation lines\n  while (i < lines.length) {\n    const line = lines[i];\n    \n    // Stop if we hit a clear structural element\n    if (shouldSkipLine(line) ||\n        line.match(/^\\d+\\.\\s*[A-Za-z]/) ||\n        line.match(/^[-*+•]\\s+/) ||\n        line === line.toUpperCase() ||\n        isTitleCase(line) && line.length < 50) {\n      break;\n    }\n    \n    // Add if it's a continuation\n    if (line.length > 10 && \n        line.match(/[a-zA-ZÀ-ÿ]/) &&\n        !line.match(/^\\d+\\./)) {\n      paragraphLines.push(line);\n      i++;\n    } else {\n      break;\n    }\n  }\n  \n  return {\n    text: formatText(paragraphLines.join(' ')),\n    endIndex: i - 1\n  };\n}\n\nfunction cleanLine(line) {\n  return line\n    .replace(/^\\d+\\.?\\s*/, '')\n    .replace(/^\\d+\\.\\d+\\.?\\s*/, '')\n    .trim();\n}\n\nfunction formatText(text) {\n  // Universal text formatting\n  text = text.replace(/\\s+/g, ' '); // Normalize spaces\n  \n  // Format parenthetical content\n  text = text.replace(/\\(([^)]{3,})\\)/g, '*($1)*');\n  \n  // Bold important terms (language-agnostic)\n  const importantPatterns = [\n    /\\b(\\d+\\s*(tabs?|onglets?|pestañas?))\\b/gi,\n    /\\b(creation|création|modification|consultation|suppression|management|gestion|administration)\\b/gi,\n    /\\b(required|obligatoires?|necessary|nécessaires?)\\b/gi,\n    /\\b(important|crucial|essential|essentiel)\\b/gi\n  ];\n  \n  importantPatterns.forEach(pattern => {\n    text = text.replace(pattern, '**$1**');\n  });\n  \n  return text.trim();\n}\n\n// === N8N CODE EXECUTION ===\n\ntry {\n  // Get input text\n  const inputText = $input.first().json.text || $input.first().json.content|| '';\n  \n  if (!inputText) {\n    return [{\n      json: {\n        error: 'No text input provided',\n        markdown: '',\n        success: false\n      }\n    }];\n  }\n  \n  // Convert to markdown\n  const markdownText = convertTextToMarkdown(inputText);\n  \n  // Create metrics\n  const inputLines = inputText.split('\\n').filter(l => l.trim().length > 0).length;\n  const outputLines = markdownText.split('\\n').filter(l => l.trim().length > 0).length;\n  const compressionRatio = Math.round((1 - markdownText.length / inputText.length) * 100);\n  \n  return [{\n    json: {\n      markdown: markdownText,\n      original_text: inputText,\n      success: true,\n      metrics: {\n        input_lines: inputLines,\n        output_lines: outputLines,\n        input_length: inputText.length,\n        output_length: markdownText.length,\n        compression_ratio: compressionRatio + '%',\n        processed_at: new Date().toISOString()\n      },\n      preview: markdownText.substring(0, 300) + (markdownText.length > 300 ? '...' : '')\n    }\n  }];\n  \n} catch (error) {\n  return [{\n    json: {\n      error: error.message,\n      markdown: '',\n      success: false,\n      original_text: $input.first().json.text || ''\n    }\n  }];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3824,
+        1760
+      ],
+      "id": "584e7396-8239-4bbb-aab9-b891235ee5b6",
+      "name": "CONVERT TO MARKDOWN "
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "213076d9-8280-4b75-99c7-5f20b0e6a430",
+              "name": "data",
+              "value": "={{ $json.markdown }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3504,
+        1760
+      ],
+      "id": "c6619ef0-ecca-43d9-b810-1e4ddaa961ac",
+      "name": "ADJUST CONTENT NAME FOR CONSISTENCY"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "fieldsToMatchString": "concatenated_columnTypes",
+        "joinMode": "keepNonMatches",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -3008,
+        2656
+      ],
+      "id": "75407864-4806-4fb5-87a3-831fcead690e",
+      "name": "MERGE ALL RESPONSES ",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -2704,
+        2656
+      ],
+      "id": "8f4d1101-2203-499f-a1ec-a37b6209634e",
+      "name": "CONVERT TO ONE LIST OF ITEMS"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7727550c-344a-4e6e-aab8-960d64ea0d93",
+              "name": "data",
+              "value": "={{ $json.data[1].concatenated_data }}",
+              "type": "string"
+            },
+            {
+              "id": "0547fb5d-3fe5-487c-8fd3-1b8c1f302a5f",
+              "name": "schema",
+              "value": "={{ $json.data[0].concatenated_columnTypes }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2352,
+        2656
+      ],
+      "id": "7009908f-984e-492d-bf6b-7157e9b9770c",
+      "name": "CHNAGE NAME FOR NAME CONSISTENCY"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "0AByb57D84R4MVq0",
+          "mode": "list",
+          "cachedResultName": "Claude_Version_OCR_WorkFlow"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "DOC_ID": "={{ $('EXTRACT ONLY USEFUL  DOC METADATA ').item.json.DOC_ID }}"
+          },
+          "matchingColumns": [
+            "DOC_ID"
+          ],
+          "schema": [
+            {
+              "id": "DOC_ID",
+              "displayName": "DOC_ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -2672,
+        1744
+      ],
+      "id": "0830a473-c1b7-4cae-90d5-8230d87c3bf7",
+      "name": "MISTRAL OCR"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c9fdd333-7e7c-4059-ac6d-6047150b9e89",
+              "name": "CONTENT",
+              "value": "={{  $json.data  }}",
+              "type": "string"
+            },
+            {
+              "id": "04d94d72-7487-459c-a88b-92f6ab9d99fd",
+              "name": "schema",
+              "value": "={{$json.schema}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1392,
+        2128
+      ],
+      "id": "b7d566d3-b547-4bdc-a31e-e36fee279759",
+      "name": "SET PARMETER FOR NAME CONSISTENCY",
+      "retryOnFail": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "LrQNsz91sYVsfDq5",
+          "mode": "list",
+          "cachedResultName": "Claud_Version_Doc_Manager"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Content": "={{ $json.CONTENT }}",
+            "Doc_ID": "={{ $('EXTRACT ONLY USEFUL  DOC METADATA ').item.json.DOC_ID }}",
+            "TYPE": "={{ $('EXTRACT ONLY USEFUL  DOC METADATA ').item.json.DOC_TYPE }}",
+            "FILE_NAME": "={{ $('EXTRACT ONLY USEFUL  DOC METADATA ').item.json.DOC_NAME }}",
+            "SCHEMA": "={{ $json.schema }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Content",
+              "displayName": "Content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "Doc_ID",
+              "displayName": "Doc_ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "SCHEMA",
+              "displayName": "SCHEMA",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "TYPE",
+              "displayName": "TYPE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "FILE_NAME",
+              "displayName": "FILE_NAME",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -512,
+        2112
+      ],
+      "id": "3aad5cab-1ecf-4035-aa7c-e222650a86fb",
+      "name": "DOC TRACKER SYSTEM SUBWORKFLOW"
+    },
+    {
+      "parameters": {
+        "content": "## 📝 Ingestion Data Validation & Update Logic\nThis workflow is a critical component of the data ingestion pipeline, responsible for preventing duplicate records and updating changed content.\n\nHASH THE CONTENT: The workflow first generates a unique hash for the incoming data. This hash serves as a unique fingerprint of the content.\n\nGET RECORD: It then checks the document_records table to see if a record with the same document ID (Doc_ID) already exists.\n\nCHECK for Duplicates:\n\nNew Item: If no record is found, it's a new document, and a new record is created.\n\n\n\n\n\n\n\nChanged Item: If a record is found but the new content hash is different from the stored hash, the old data in the documents table is deleted, and the new record is created.\n\nNo Change: If a record is found and the hashes match, the workflow stops, avoiding redundant processing.\n\nUPDATE RECORD: For new or changed items, the workflow updates the document_records table with the new content hash.\n\nThis ensures that only new or modified data is processed and indexed, improving efficiency and maintaining data integrity.",
+        "height": 912,
+        "width": 832
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1104,
+        1856
+      ],
+      "id": "99efec6c-e8cd-4a4f-baa5-66c75826158b",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "content": "## ON CREATION ",
+        "height": 496,
+        "width": 272,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -6512,
+        2128
+      ],
+      "id": "276c004a-daa5-4a25-9527-09fa7767ef78",
+      "name": "Sticky Note11"
+    },
+    {
+      "parameters": {
+        "content": "## Get Folder ID To Watch (For Share Point Trigger And Microsoft Drive)\n📌 Title:\nRetrieve Folder ID (for Tracking and Monitoring in Microsoft Drive)\n\n📝 Description (Sticky Note):\nI’m retrieving the folder ID in n8n from Microsoft Drive. Once I have the folder ID, I’ll set up a trigger to continuously watch the folder for changes related to RAG (Retrieve & Generate).",
+        "height": 544,
+        "width": 1264,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -7808,
+        2176
+      ],
+      "id": "a7c3774b-5460-49aa-885f-249ab57226a8",
+      "name": "Sticky Note12"
+    },
+    {
+      "parameters": {
+        "formTitle": "Folder ID Retrieval (for Tracking & Monitoring)",
+        "formDescription": "Description:\nI’m retrieving the folder ID in n8n from Microsoft Drive. Once I have the folder ID, I’ll use a trigger to continuously watch the folder for changes related to RAG (Retrieve & Generate).",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "FOLDER NAME (For Tracking & Monitoring)",
+              "placeholder": "provide a folder name to keep tracking",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        -7712,
+        2384
+      ],
+      "id": "0326cde4-9cbd-46d7-86d5-865946b0aec9",
+      "name": "On form submission1",
+      "webhookId": "770f0bf3-6fdd-4799-a867-1cb957d208cb"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "watchFolder": true,
+        "folderId": {
+          "__rl": true,
+          "value": "=35D525225CC1BBC5!s24276bfa5e414579b252abf7b4851fa7\n",
+          "mode": "id"
+        },
+        "options": {
+          "folderChild": true
+        }
+      },
+      "type": "n8n-nodes-base.microsoftOneDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        -6448,
+        2224
+      ],
+      "id": "fe0b42ee-7390-4e3c-a2d5-4ecbb7cc544c",
+      "name": "ON FILE CREATION TRIGGER (MICROSOFT DRIVE) ",
+      "credentials": {
+        "microsoftOneDriveOAuth2Api": {
+          "id": "QjDCjaOBR5xFgnVT",
+          "name": "Microsoft Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "event": "fileUpdated",
+        "watch": "selectedFolder",
+        "folderId": {
+          "__rl": true,
+          "value": "35D525225CC1BBC5!s18af7906b5744b269e3a80ffc356f4f5",
+          "mode": "id"
+        },
+        "options": {
+          "folderChild": true
+        }
+      },
+      "type": "n8n-nodes-base.microsoftOneDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        -6432,
+        2880
+      ],
+      "id": "b5d21d2e-33c6-4abf-a5ed-67f59ca2e3ac",
+      "name": "WATCH FOR FILE UPDATE TRIGGER",
+      "credentials": {
+        "microsoftOneDriveOAuth2Api": {
+          "id": "QjDCjaOBR5xFgnVT",
+          "name": "Microsoft Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## ON UPDATE",
+        "height": 496,
+        "width": 272,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -6512,
+        2784
+      ],
+      "id": "36de46e0-ded9-4c48-93fd-e38d94d0b091",
+      "name": "Sticky Note13"
+    },
+    {
+      "parameters": {
+        "content": "## WEB CRAWLING",
+        "height": 368,
+        "width": 272,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -6512,
+        1712
+      ],
+      "id": "279c07bf-8674-4b68-80f6-f4d4e08041cf",
+      "name": "Sticky Note14"
+    },
+    {
+      "parameters": {
+        "content": "## DOWNLOAD FILE ",
+        "height": 272,
+        "width": 528,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -5216,
+        2320
+      ],
+      "id": "777546cd-8485-4f80-b0be-5e722ab4e34a",
+      "name": "Sticky Note15"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": "={{ $json.DOC_ID }}"
+      },
+      "type": "n8n-nodes-base.microsoftOneDrive",
+      "typeVersion": 1,
+      "position": [
+        -5040,
+        2416
+      ],
+      "id": "9d5ceaa7-6e47-4ea9-a827-0f9bef4544b2",
+      "name": "DOWNLOAD BY DOC ID",
+      "credentials": {
+        "microsoftOneDriveOAuth2Api": {
+          "id": "QjDCjaOBR5xFgnVT",
+          "name": "Microsoft Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "operation": "search",
+        "query": "={{ $json['FOLDER NAME (For Tracking & Monitoring)'] }}"
+      },
+      "type": "n8n-nodes-base.microsoftOneDrive",
+      "typeVersion": 1,
+      "position": [
+        -7472,
+        2384
+      ],
+      "id": "5d835433-8db1-4d72-bcab-09bfe15a7025",
+      "name": "Search a folder",
+      "credentials": {
+        "microsoftOneDriveOAuth2Api": {
+          "id": "QjDCjaOBR5xFgnVT",
+          "name": "Microsoft Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5b788667-c839-4b22-b311-955b65534234",
+              "leftValue": "={{ $json['FILE CHANGED'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -32,
+        2112
+      ],
+      "id": "f4f8bb92-dbc6-468c-a15a-7a0bdebd71f5",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "338f585b-9499-42c7-9427-d1d83941d7f2",
+              "name": "Folder Name ",
+              "value": "={{ $json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "ea9014d3-22c8-4f24-976f-95f41ee7c0bc",
+              "name": "ID",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "ccee3607-80ae-4873-a514-985897e84783",
+              "name": "WEB URL ",
+              "value": "={{ $json.webUrl }}",
+              "type": "string"
+            },
+            {
+              "id": "562f3851-e6f0-4179-a8f9-b2e6c8ab36a7",
+              "name": "PARENT FOLDER ID",
+              "value": "={{ $json.parentReference.id }}",
+              "type": "string"
+            },
+            {
+              "id": "438e4a6c-c861-4029-a873-e631b772e166",
+              "name": "PRAENT FOLDER NAME",
+              "value": "={{ $json.parentReference.name }}",
+              "type": "string"
+            },
+            {
+              "id": "eede2c98-3340-4913-9649-31d104492389",
+              "name": "PARENT FOLDER PATH",
+              "value": "={{ $json.parentReference.path }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -7184,
+        2384
+      ],
+      "id": "f23eed22-62ba-489a-8a4c-25644d16c902",
+      "name": "Parent Folder"
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "folderId": "={{ $json.ID }}"
+      },
+      "type": "n8n-nodes-base.microsoftOneDrive",
+      "typeVersion": 1,
+      "position": [
+        -6896,
+        2384
+      ],
+      "id": "2f234767-f070-4fe0-bc3a-97a59f9f5008",
+      "name": "Get items in a folder",
+      "credentials": {
+        "microsoftOneDriveOAuth2Api": {
+          "id": "QjDCjaOBR5xFgnVT",
+          "name": "Microsoft Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "copy",
+        "fileId": "={{ $('EXTRACT ONLY USEFUL  DOC METADATA ').first().json.DOC_ID}}",
+        "additionalFields": {},
+        "parentReference": {
+          "path": "/drive/root:/Rag/PROCESSED FILES"
+        }
+      },
+      "type": "n8n-nodes-base.microsoftOneDrive",
+      "typeVersion": 1,
+      "position": [
+        4096,
+        1712
+      ],
+      "id": "104b8c5e-660b-4a2f-b267-32eea16440c1",
+      "name": "Copy a file1",
+      "credentials": {
+        "microsoftOneDriveOAuth2Api": {
+          "id": "QjDCjaOBR5xFgnVT",
+          "name": "Microsoft Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "fileId": "={{ $('EXTRACT ONLY USEFUL  DOC METADATA ').first().json.DOC_ID}}"
+      },
+      "type": "n8n-nodes-base.microsoftOneDrive",
+      "typeVersion": 1,
+      "position": [
+        4096,
+        1936
+      ],
+      "id": "3d2ea03e-34d8-4cbb-bdad-475377d4a54c",
+      "name": "Delete a file",
+      "credentials": {
+        "microsoftOneDriveOAuth2Api": {
+          "id": "QjDCjaOBR5xFgnVT",
+          "name": "Microsoft Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "height": 528,
+        "width": 576
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3904,
+        1600
+      ],
+      "id": "5ad5a5ab-46cc-4679-bdb5-054ff0656411",
+      "name": "Sticky Note16"
     }
   ],
-  "pinData": {},
   "connections": {
     "Loop Over Items": {
       "main": [
@@ -1672,51 +2236,6 @@
           {
             "node": "EXTRACT ONLY USEFUL  DOC METADATA ",
             "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Edit Fields": {
-      "main": [
-        [
-          {
-            "node": "Execute Workflow1",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        []
-      ]
-    },
-    "Default Data Loader1": {
-      "ai_document": [
-        [
-          {
-            "node": "Insert into Supabase Vectorstore",
-            "type": "ai_document",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Embeddings OpenAI1": {
-      "ai_embedding": [
-        [
-          {
-            "node": "Insert into Supabase Vectorstore",
-            "type": "ai_embedding",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Recursive Character Text Splitter": {
-      "ai_textSplitter": [
-        [
-          {
-            "node": "Default Data Loader1",
-            "type": "ai_textSplitter",
             "index": 0
           }
         ]
@@ -1790,14 +2309,10 @@
             "type": "main",
             "index": 0
           }
-        ]
-      ]
-    },
-    "DOWNLOAD THE CURRENT DOC ": {
-      "main": [
+        ],
         [
           {
-            "node": "SWITCH ON FILE TYPE ",
+            "node": "HTTP Request",
             "type": "main",
             "index": 0
           }
@@ -1819,7 +2334,7 @@
       "main": [
         [
           {
-            "node": "Code8",
+            "node": "CONVERT TO MARKDOWN ",
             "type": "main",
             "index": 0
           }
@@ -1830,7 +2345,7 @@
       "main": [
         [
           {
-            "node": "Code8",
+            "node": "CONVERT TO MARKDOWN ",
             "type": "main",
             "index": 0
           }
@@ -1848,7 +2363,7 @@
         ],
         [
           {
-            "node": "Edit Fields",
+            "node": "SET PARMETER FOR NAME CONSISTENCY",
             "type": "main",
             "index": 0
           }
@@ -1859,7 +2374,7 @@
       "main": [
         [
           {
-            "node": "Edit Fields",
+            "node": "SET PARMETER FOR NAME CONSISTENCY",
             "type": "main",
             "index": 0
           }
@@ -1870,14 +2385,14 @@
       "main": [
         [
           {
-            "node": "Execute Workflow",
+            "node": "MISTRAL OCR",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Execute Workflow",
+            "node": "CHECK IF THERE IS CHARACTER ISSSUES IN THE PROVIDED FILE",
             "type": "main",
             "index": 0
           }
@@ -1906,28 +2421,6 @@
         ]
       ]
     },
-    "ON FILE UPDATED1": {
-      "main": [
-        [
-          {
-            "node": "Loop Over Items",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "ON FILE CREATED1": {
-      "main": [
-        [
-          {
-            "node": "Loop Over Items",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "CHECK IF TYPE OF DATA URL ": {
       "main": [
         [
@@ -1939,7 +2432,7 @@
         ],
         [
           {
-            "node": "DOWNLOAD THE CURRENT DOC ",
+            "node": "DOWNLOAD BY DOC ID",
             "type": "main",
             "index": 0
           }
@@ -1957,12 +2450,12 @@
         ]
       ]
     },
-    "Anthropic Chat Model": {
-      "ai_languageModel": [
+    "Basic LLM Chain": {
+      "main": [
         [
           {
-            "node": "Basic LLM Chain",
-            "type": "ai_languageModel",
+            "node": "GET COTENT TO FEED TO THE VECTORE TO STORE ",
+            "type": "main",
             "index": 0
           }
         ]
@@ -1979,17 +2472,6 @@
         ]
       ]
     },
-    "Basic LLM Chain": {
-      "main": [
-        [
-          {
-            "node": "GET COTENT TO FEED TO THE VECTORE TO STORE ",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Replace Me": {
       "main": [
         [
@@ -2001,9 +2483,15 @@
         ]
       ]
     },
-    "Insert into Supabase Vectorstore": {
+    "CONCATENATE THE RESULT ": {
       "main": [
-        []
+        [
+          {
+            "node": "MERGE ALL RESPONSES ",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "EXTARCT THE COLUMNS NAMES AND DTYPES FROM THE TABULAR DATA": {
@@ -2017,66 +2505,22 @@
         ]
       ]
     },
-    "GET ALL SAMPLES IN ONE FILED ": {
-      "main": [
-        [
-          {
-            "node": "CONCATENATE THE REPSONSE",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "CONCATENATE THE RESULT ": {
-      "main": [
-        [
-          {
-            "node": "Merge1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "CONCATENATE THE REPSONSE": {
       "main": [
         [
           {
-            "node": "Merge1",
+            "node": "MERGE ALL RESPONSES ",
             "type": "main",
             "index": 1
           }
         ]
       ]
     },
-    "Merge1": {
+    "GET ALL SAMPLES IN ONE FILED ": {
       "main": [
         [
           {
-            "node": "Aggregate",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Aggregate": {
-      "main": [
-        [
-          {
-            "node": "Edit Fields2",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Edit Fields2": {
-      "main": [
-        [
-          {
-            "node": "Edit Fields",
+            "node": "CONCATENATE THE REPSONSE",
             "type": "main",
             "index": 0
           }
@@ -2142,16 +2586,11 @@
       "main": [
         [
           {
-            "node": "HTTP Request2",
+            "node": " SCRAPE WEB PAGE SETTINGS NODE ",
             "type": "main",
             "index": 0
           }
         ]
-      ]
-    },
-    "Supabase /Migration": {
-      "main": [
-        []
       ]
     },
     "Create a row": {
@@ -2187,7 +2626,12 @@
         ],
         [
           {
-            "node": "Move file",
+            "node": "Copy a file1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Delete a file",
             "type": "main",
             "index": 0
           }
@@ -2227,39 +2671,6 @@
         ]
       ]
     },
-    "Code8": {
-      "main": [
-        [
-          {
-            "node": "Edit Fields1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Edit Fields1": {
-      "main": [
-        [
-          {
-            "node": "If1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Execute Workflow": {
-      "main": [
-        [
-          {
-            "node": "CHECK IF THERE IS CHARACTER ISSSUES IN THE PROVIDED FILE",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Contextual Retrievel": {
       "main": [
         [
@@ -2267,15 +2678,20 @@
             "node": "isURl",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
     },
-    "Execute Workflow1": {
+    "Extract from File": {
       "main": [
         [
           {
-            "node": "IsTabular",
+            "node": "CONVERT TO MARKDOWN ",
             "type": "main",
             "index": 0
           }
@@ -2293,18 +2709,256 @@
         ]
       ]
     },
-    "Extract from File": {
+    "HTTP Request": {
       "main": [
         [
           {
-            "node": "Code8",
+            "node": "Wait",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Move file": {
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "SET PARMETER FOR NAME CONSISTENCY",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CONVERT TO MARKDOWN ": {
+      "main": [
+        [
+          {
+            "node": "ADJUST CONTENT NAME FOR CONSISTENCY",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ADJUST CONTENT NAME FOR CONSISTENCY": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MERGE ALL RESPONSES ": {
+      "main": [
+        [
+          {
+            "node": "CONVERT TO ONE LIST OF ITEMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CONVERT TO ONE LIST OF ITEMS": {
+      "main": [
+        [
+          {
+            "node": "CHNAGE NAME FOR NAME CONSISTENCY",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CHNAGE NAME FOR NAME CONSISTENCY": {
+      "main": [
+        [
+          {
+            "node": "SET PARMETER FOR NAME CONSISTENCY",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MISTRAL OCR": {
+      "main": [
+        [
+          {
+            "node": "CHECK IF THERE IS CHARACTER ISSSUES IN THE PROVIDED FILE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SET PARMETER FOR NAME CONSISTENCY": {
+      "main": [
+        [
+          {
+            "node": "DOC TRACKER SYSTEM SUBWORKFLOW",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DOC TRACKER SYSTEM SUBWORKFLOW": {
+      "main": [
+        [
+          {
+            "node": "IsTabular",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission1": {
+      "main": [
+        [
+          {
+            "node": "Search a folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ON FILE CREATION TRIGGER (MICROSOFT DRIVE) ": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WATCH FOR FILE UPDATE TRIGGER": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DOWNLOAD BY DOC ID": {
+      "main": [
+        [
+          {
+            "node": "SWITCH ON FILE TYPE ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search a folder": {
+      "main": [
+        [
+          {
+            "node": "Parent Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parent Folder": {
+      "main": [
+        [
+          {
+            "node": "Get items in a folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Copy a file1": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete a file": {
       "main": [
         [
           {
@@ -2316,15 +2970,9 @@
       ]
     }
   },
-  "active": false,
-  "settings": {
-    "executionOrder": "v1"
-  },
-  "versionId": "1d6ebe72-1679-447c-af42-367bbfdaad0d",
+  "pinData": {},
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "18bbd58243fd5f2012d589a65b66bb280d57775b60d57fd0ae51837c3241d395"
-  },
-  "id": "FWtjHkUxiab4wp5o",
-  "tags": []
+    "instanceId": "764abf43019c66c51279befb0403092fc7e1beab1eff90fa2cd5f93d91d18c8a"
+  }
 }
