@@ -1,5 +1,4 @@
 {
-  "name": "OCR_WORKFLOW",
   "nodes": [
     {
       "parameters": {
@@ -14,10 +13,10 @@
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
       "position": [
-        -1152,
-        1472
+        -1744,
+        128
       ],
-      "id": "9398f3d4-8a6a-4f27-b045-a04572b929b3",
+      "id": "6e03c889-baa8-47e8-b819-5ffe2aa881ec",
       "name": "When Executed by Another Workflow"
     },
     {
@@ -33,14 +32,14 @@
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
       "position": [
-        -864,
-        1472
+        -1456,
+        128
       ],
-      "id": "fcd40193-673f-4643-b8ce-110f02c45cab",
+      "id": "5830837d-5d87-40a9-9578-c3f4d3b3572f",
       "name": "DOWNLOAD THE CURRENT DOC 1",
       "credentials": {
         "googleDriveOAuth2Api": {
-          "id": "aFMaMwmaqVjQg779",
+          "id": "BaCkgQEh4aOXF4Og",
           "name": "Google Drive account"
         }
       }
@@ -80,15 +79,15 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -464,
-        1472
+        -1056,
+        128
       ],
-      "id": "735d5578-fcf2-4da5-b62a-eaecdbbfc5e5",
+      "id": "c67974bc-86f1-4a59-9867-2419bb1cff14",
       "name": "UPLOAD FILE TO MISTERAL ",
       "credentials": {
         "mistralCloudApi": {
-          "id": "w72h424x8gInbvOM",
-          "name": "Mistral Cloud account 2"
+          "id": "qJ5ZS3tpSub7Rfy7",
+          "name": "Mistral Cloud account"
         }
       }
     },
@@ -124,15 +123,15 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -256,
-        1472
+        -848,
+        128
       ],
-      "id": "2c8df6af-a526-427c-a599-c1dd67fda1d2",
+      "id": "880829df-b2d8-4e56-bd5f-428b22854552",
       "name": "GET SIGNED URL ",
       "credentials": {
         "mistralCloudApi": {
-          "id": "w72h424x8gInbvOM",
-          "name": "Mistral Cloud account 2"
+          "id": "qJ5ZS3tpSub7Rfy7",
+          "name": "Mistral Cloud account"
         }
       }
     },
@@ -154,14 +153,14 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -48,
-        1472
+        -640,
+        128
       ],
-      "id": "84887799-ea4a-44cd-aec3-32dbeba6647e",
+      "id": "4cc267e1-a987-4501-8ac7-cbb5160e179d",
       "name": "HTTP Request",
       "credentials": {
         "httpBearerAuth": {
-          "id": "QGi7SRbOrWefvZg5",
+          "id": "9t4XntvFXi4Cvm0w",
           "name": "Bearer Auth account"
         }
       }
@@ -183,10 +182,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        3056,
-        1584
+        2464,
+        240
       ],
-      "id": "c01c9c9b-c080-4a9c-bcbf-6cb597cdc9c3",
+      "id": "988cbccd-a2b9-4feb-aca5-b4e03497e27f",
       "name": "GET THE IMAGE BASE 64 PART"
     },
     {
@@ -201,10 +200,10 @@
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
       "position": [
-        3360,
-        1728
+        2768,
+        384
       ],
-      "id": "05aab1b9-2519-407c-b25b-06afdbffae16",
+      "id": "b69df18e-09b7-4773-8f30-34a0a97e871a",
       "name": "CONVERT TO BINARY ",
       "alwaysOutputData": false
     },
@@ -216,31 +215,11 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        304,
-        1472
+        -288,
+        128
       ],
-      "id": "6c90b026-cc01-405d-a325-7231eb96199c",
+      "id": "378803b8-592d-4882-8446-b720b5bf0c61",
       "name": "EXTRACT THE PAGES 1"
-    },
-    {
-      "parameters": {
-        "model": "=llama3-8b-8192",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
-      "typeVersion": 1,
-      "position": [
-        2048,
-        2016
-      ],
-      "id": "5894a000-38f1-4ffe-920b-891cf6715b60",
-      "name": "Groq Chat Model",
-      "credentials": {
-        "groqApi": {
-          "id": "cuCi1Ews1jiefdF7",
-          "name": "Groq account"
-        }
-      }
     },
     {
       "parameters": {
@@ -265,10 +244,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        2608,
-        1584
+        2016,
+        240
       ],
-      "id": "207e68da-dada-4ae1-a8b1-26516be20a45",
+      "id": "909149a0-1308-43af-94d5-514f63c44cf2",
       "name": "GET SUPABASE STORAGE FILE TITLE"
     },
     {
@@ -285,16 +264,16 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        3696,
-        1728
+        3104,
+        384
       ],
-      "id": "28a50ec8-36fe-431b-8cd7-a8304431b760",
+      "id": "2bf6dda9-31d8-4385-a6df-d33644630ddf",
       "name": "SAVE ALL THE  IMAGES IN SUPABASE  BUCKET STORAGE",
       "retryOnFail": true,
       "credentials": {
         "supabaseApi": {
-          "id": "F11Pn5ORjMbpDP63",
-          "name": "Supabase account"
+          "id": "3cRXAQK1eN8QzIzJ",
+          "name": "LOCAL SUPABASE V"
         }
       }
     },
@@ -321,10 +300,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        4064,
-        1728
+        3472,
+        384
       ],
-      "id": "d76cc710-4fb3-4e78-87a8-351b44a8b0d8",
+      "id": "2e85aeac-1d74-45e4-9918-27fd0e6cc5bb",
       "name": "EXTRACT TITLE"
     },
     {
@@ -335,11 +314,11 @@
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        -624,
-        1376
+        -1216,
+        32
       ],
       "typeVersion": 1,
-      "id": "abc71048-fa6f-47d1-bf4a-6de6b9118604",
+      "id": "524553c9-2d63-4d66-899f-9510b482873b",
       "name": "Sticky Note6"
     },
     {
@@ -358,10 +337,10 @@
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.7,
       "position": [
-        2032,
-        1584
+        1440,
+        240
       ],
-      "id": "257cd083-c98c-4a5d-848b-17da729bf421",
+      "id": "24ec6ae0-a9b4-43ea-9c7b-de3f3c5d634c",
       "name": "Basic LLM Chain2"
     },
     {
@@ -381,10 +360,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        4640,
-        1840
+        4048,
+        496
       ],
-      "id": "72055ddf-3fc0-480f-9ad0-869fc436aa44",
+      "id": "828e439b-3215-41c8-983f-04b3524b8e86",
       "name": "Merge2"
     },
     {
@@ -395,10 +374,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        5488,
-        1568
+        4896,
+        224
       ],
-      "id": "07827a34-0220-4182-9079-50c5c838fb97",
+      "id": "5e4151d5-9346-47ba-a221-713b2147c517",
       "name": "Code5",
       "alwaysOutputData": true
     },
@@ -410,10 +389,10 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        5936,
-        1568
+        5344,
+        224
       ],
-      "id": "bc471e61-77d7-41a4-8439-0d2e4834e02e",
+      "id": "5998de41-bc0e-4291-b121-697de853f5a8",
       "name": "Split Out3"
     },
     {
@@ -423,10 +402,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        6560,
-        1392
+        5968,
+        48
       ],
-      "id": "bc15657f-4433-416d-8a86-d8c437c6360b",
+      "id": "85f76e4f-0d3f-4b00-aea9-e780f8323a4c",
       "name": "Code6"
     },
     {
@@ -446,10 +425,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        6912,
-        1392
+        6320,
+        48
       ],
-      "id": "5fe63aec-b997-40f3-a0e6-4c68bdced080",
+      "id": "af7edf4c-e28f-4abc-afc0-e6d8fdbe4f81",
       "name": "Name Consistency"
     },
     {
@@ -459,10 +438,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        592,
-        1184
+        0,
+        -160
       ],
-      "id": "e4d0b033-96eb-408b-87f0-b7bdcb15f990",
+      "id": "0bfe1d8b-240b-473f-8123-f0f6142cbc26",
       "name": "CHECK IF THERE IS NO IMAGES"
     },
     {
@@ -493,10 +472,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1360,
-        1456
+        768,
+        112
       ],
-      "id": "da2ba8e8-741c-4d63-a063-b433bb947cb1",
+      "id": "c747fd2f-4303-4cac-9be7-7a888f8c5027",
       "name": "If",
       "alwaysOutputData": false
     },
@@ -505,10 +484,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        880,
-        1456
+        288,
+        112
       ],
-      "id": "933f38b5-ff7b-47e4-9339-bf3669b938cc",
+      "id": "b72fc719-1ee5-4fbe-bcff-99808168350d",
       "name": "Merge"
     },
     {
@@ -519,10 +498,10 @@
       "type": "n8n-nodes-base.aggregate",
       "typeVersion": 1,
       "position": [
-        1088,
-        1456
+        496,
+        112
       ],
-      "id": "960e1e1d-a9e8-4733-9b9b-dfd2a37c7221",
+      "id": "84f91b44-da49-4fc6-8959-aabeafafd90d",
       "name": "Aggregate"
     },
     {
@@ -533,10 +512,10 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        1456,
-        1824
+        864,
+        480
       ],
-      "id": "af663348-ac10-4b59-90ec-d4d2c063bd30",
+      "id": "ea313f6e-405d-46b3-b8ae-8f0fc01be4b9",
       "name": "IMAGES"
     },
     {
@@ -557,10 +536,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        5136,
-        1568
+        4544,
+        224
       ],
-      "id": "8918e064-1a4b-4eef-9a5b-3e562f32fecd",
+      "id": "1f06c2bf-8695-4e17-be9e-ae787fcd2e8d",
       "name": "Merge1"
     },
     {
@@ -571,10 +550,10 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        1200,
-        1824
+        608,
+        480
       ],
-      "id": "41810073-15bc-45a3-9334-165e5dd56fa4",
+      "id": "32b62779-b470-40da-ba81-ba50946521be",
       "name": "Split Out1",
       "alwaysOutputData": true
     },
@@ -588,10 +567,10 @@
       "type": "n8n-nodes-base.aggregate",
       "typeVersion": 1,
       "position": [
-        2048,
-        1440
+        1456,
+        96
       ],
-      "id": "2b61dccc-669b-4957-a770-d35c981cb535",
+      "id": "b2e13ae0-37f3-4177-a3f4-4494156a35b7",
       "name": "Aggregate1"
     },
     {
@@ -602,10 +581,10 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        1664,
-        1440
+        1072,
+        96
       ],
-      "id": "3a23da7d-6366-4986-9c7a-4c570a6b6bd0",
+      "id": "aae1059d-8dc7-4aa5-9f38-4d05617aec7c",
       "name": "Split Out",
       "alwaysOutputData": true
     },
@@ -617,23 +596,44 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        5936,
-        1392
+        5344,
+        48
       ],
-      "id": "c2f99a1c-48ea-4545-b0e7-36cd95460523",
+      "id": "2621e1ab-6a0a-413d-a907-2f5ef7b2f4da",
       "name": "Split Out2"
-    }
-  ],
-  "pinData": {
-    "When Executed by Another Workflow": [
-      {
-        "json": {
-          "DOC_ID": "1wHLjtFGpokJEk74O2rZZPlT5YCenjsWH"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        1440,
+        496
+      ],
+      "id": "4dc68c9a-aa4d-4eef-9de1-d994f52d2741",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "3YBplxts6vfr4Rs0",
+          "name": "OpenRouter account"
         }
       }
-    ]
-  },
+    }
+  ],
   "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "DOWNLOAD THE CURRENT DOC 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
     "DOWNLOAD THE CURRENT DOC 1": {
       "main": [
         [
@@ -712,17 +712,6 @@
             "node": "Merge",
             "type": "main",
             "index": 1
-          }
-        ]
-      ]
-    },
-    "Groq Chat Model": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "Basic LLM Chain2",
-            "type": "ai_languageModel",
-            "index": 0
           }
         ]
       ]
@@ -815,38 +804,11 @@
         ]
       ]
     },
-    "When Executed by Another Workflow": {
-      "main": [
-        [
-          {
-            "node": "DOWNLOAD THE CURRENT DOC 1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Name Consistency": {
-      "main": [
-        []
-      ]
-    },
     "CHECK IF THERE IS NO IMAGES": {
       "main": [
         [
           {
             "node": "Merge",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Merge": {
-      "main": [
-        [
-          {
-            "node": "Aggregate",
             "type": "main",
             "index": 0
           }
@@ -865,6 +827,17 @@
         [
           {
             "node": "Split Out1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
             "type": "main",
             "index": 0
           }
@@ -957,16 +930,28 @@
           }
         ]
       ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "active": false,
-  "settings": {
-    "executionOrder": "v1"
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "DOC_ID": "1wHLjtFGpokJEk74O2rZZPlT5YCenjsWH"
+      }
+    ]
   },
-  "versionId": "cf63be9d-063d-4b3b-8058-8050d8333b5b",
   "meta": {
-    "instanceId": "18bbd58243fd5f2012d589a65b66bb280d57775b60d57fd0ae51837c3241d395"
-  },
-  "id": "BkkMXHeZDWAm7A1G",
-  "tags": []
+    "templateCredsSetupCompleted": true,
+    "instanceId": "764abf43019c66c51279befb0403092fc7e1beab1eff90fa2cd5f93d91d18c8a"
+  }
 }
