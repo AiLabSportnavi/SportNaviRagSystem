@@ -1,5 +1,4 @@
 {
-  "name": "DELETION WORKFLOW",
   "nodes": [
     {
       "parameters": {
@@ -8,10 +7,10 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        192,
+        400,
         -80
       ],
-      "id": "b70ec4df-2623-4e5d-9a44-6bbcbca8c13a",
+      "id": "599d9018-3b6c-46d9-9885-715074c23ac6",
       "name": "Loop Over Items3"
     },
     {
@@ -25,16 +24,16 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        1872,
+        2080,
         -48
       ],
-      "id": "e246d8f1-3c04-46ae-b31f-b88617aa121f",
+      "id": "a30091f2-2231-41d6-9ed6-a7f73587885c",
       "name": "DELETE ALL OLD ROWS FROM VECTOR STORE BY FILE ID 1",
       "alwaysOutputData": true,
       "credentials": {
         "supabaseApi": {
-          "id": "F11Pn5ORjMbpDP63",
-          "name": "Supabase account"
+          "id": "3cRXAQK1eN8QzIzJ",
+          "name": "LOCAL SUPABASE V"
         }
       }
     },
@@ -55,15 +54,15 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        3040,
+        3248,
         -48
       ],
-      "id": "96a43a3e-0722-46cd-8820-29a68cfa5f70",
+      "id": "380ddf5e-5a73-476e-9ea6-f5b8448987ee",
       "name": "DELETE FROM PROCESSED FILES ",
       "credentials": {
         "supabaseApi": {
-          "id": "F11Pn5ORjMbpDP63",
-          "name": "Supabase account"
+          "id": "3cRXAQK1eN8QzIzJ",
+          "name": "LOCAL SUPABASE V"
         }
       }
     },
@@ -90,15 +89,15 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        1776,
+        1984,
         272
       ],
-      "id": "4755ea1b-1b35-4906-9c6a-f805d98fd8f0",
+      "id": "97604421-fed2-4ae1-aa44-cbe0853b5145",
       "name": "ADD RECORD TO THE DELTED FILES",
       "credentials": {
         "supabaseApi": {
-          "id": "F11Pn5ORjMbpDP63",
-          "name": "Supabase account"
+          "id": "3cRXAQK1eN8QzIzJ",
+          "name": "LOCAL SUPABASE V"
         }
       }
     },
@@ -120,16 +119,16 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        976,
+        1184,
         -64
       ],
-      "id": "4eef48b5-2614-48c0-9f58-05d90daed351",
+      "id": "7d32881f-8bc3-4024-a69f-f0c5dccdd23a",
       "name": "CHECK FILE EXIST IN RECORD MANAGER TABLE OR NOT ",
       "alwaysOutputData": true,
       "credentials": {
         "supabaseApi": {
-          "id": "F11Pn5ORjMbpDP63",
-          "name": "Supabase account"
+          "id": "3cRXAQK1eN8QzIzJ",
+          "name": "LOCAL SUPABASE V"
         }
       }
     },
@@ -161,10 +160,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1392,
+        1600,
         -64
       ],
-      "id": "72e00b4f-ca64-4101-b4c7-8ca423449a89",
+      "id": "93eca5f4-0ac8-4208-877c-315e6632aa60",
       "name": "NOT EXIST",
       "alwaysOutputData": true
     },
@@ -177,10 +176,10 @@
       "type": "n8n-nodes-base.aggregate",
       "typeVersion": 1,
       "position": [
-        2176,
+        2384,
         -48
       ],
-      "id": "66bab90a-be8a-4e29-8048-fc31356435a7",
+      "id": "6919ff6d-d352-4b46-bbd2-079cc20f5431",
       "name": "AGGREGATE "
     },
     {
@@ -206,15 +205,15 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        2512,
+        2720,
         -48
       ],
-      "id": "cf2bc451-7594-4214-b6e8-184d067d418b",
+      "id": "ad5f6398-4204-4ada-831d-749a53056f8a",
       "name": "ADD RAW TO DELTED FILES TABLE",
       "credentials": {
         "supabaseApi": {
-          "id": "F11Pn5ORjMbpDP63",
-          "name": "Supabase account"
+          "id": "3cRXAQK1eN8QzIzJ",
+          "name": "LOCAL SUPABASE V"
         }
       }
     },
@@ -235,16 +234,16 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        2768,
+        2976,
         -48
       ],
-      "id": "d9178e0e-03bc-4765-a281-dd3994c72c8d",
+      "id": "b921860e-f07d-4369-8b70-167389a7ed19",
       "name": "UPDATE DOCUMENT RECORD TABLE",
       "alwaysOutputData": true,
       "credentials": {
         "supabaseApi": {
-          "id": "F11Pn5ORjMbpDP63",
-          "name": "Supabase account"
+          "id": "3cRXAQK1eN8QzIzJ",
+          "name": "LOCAL SUPABASE V"
         }
       }
     },
@@ -257,10 +256,10 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -240,
+        -32,
         -160
       ],
-      "id": "6911a299-4ea2-4399-ad65-8c350fa3cf9f",
+      "id": "cb8a87c6-3e3e-4f7a-ae6f-b7d1967f0cec",
       "name": "Sticky Note3"
     },
     {
@@ -286,14 +285,14 @@
       "type": "n8n-nodes-base.googleDriveTrigger",
       "typeVersion": 1,
       "position": [
-        -176,
+        32,
         -80
       ],
-      "id": "475b12a3-3291-40d1-9cbf-d28074e654e0",
+      "id": "84fdd6da-ccab-47c9-9d77-f6a4465535f2",
       "name": "ON FILE DELETION",
       "credentials": {
         "googleDriveOAuth2Api": {
-          "id": "aFMaMwmaqVjQg779",
+          "id": "BaCkgQEh4aOXF4Og",
           "name": "Google Drive account"
         }
       }
@@ -327,15 +326,14 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        576,
+        784,
         -64
       ],
-      "id": "299b6316-9760-4972-ad38-0f6f7d40e2ec",
+      "id": "9ca09258-2ad0-4b66-bcaf-34b391354701",
       "name": "EXRACT  USEFUL  METADATA",
       "alwaysOutputData": false
     }
   ],
-  "pinData": {},
   "connections": {
     "Loop Over Items3": {
       "main": [
@@ -467,14 +465,9 @@
       ]
     }
   },
-  "active": false,
-  "settings": {
-    "executionOrder": "v1"
-  },
-  "versionId": "7da3b0e8-f606-4fd5-a228-c13c63cac579",
+  "pinData": {},
   "meta": {
-    "instanceId": "18bbd58243fd5f2012d589a65b66bb280d57775b60d57fd0ae51837c3241d395"
-  },
-  "id": "lVf9TOb8vwirhEdE",
-  "tags": []
+    "templateCredsSetupCompleted": true,
+    "instanceId": "764abf43019c66c51279befb0403092fc7e1beab1eff90fa2cd5f93d91d18c8a"
+  }
 }
